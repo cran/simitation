@@ -1,0 +1,670 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
+<title>Simplified Simulations with the simitation Package for R</title>
+<style type="text/css">
+/**
+ * Prism.s theme ported from highlight.js's xcode style
+ */
+pre code {
+  padding: 1em;
+}
+.token.comment {
+  color: #007400;
+}
+.token.punctuation {
+  color: #999;
+}
+.token.tag,
+.token.selector {
+  color: #aa0d91;
+}
+.token.boolean,
+.token.number,
+.token.constant,
+.token.symbol {
+  color: #1c00cf;
+}
+.token.property,
+.token.attr-name,
+.token.string,
+.token.char,
+.token.builtin {
+  color: #c41a16;
+}
+.token.inserted {
+  background-color: #ccffd8;
+}
+.token.deleted {
+  background-color: #ffebe9;
+}
+.token.operator,
+.token.entity,
+.token.url,
+.language-css .token.string,
+.style .token.string {
+  color: #9a6e3a;
+}
+.token.atrule,
+.token.attr-value,
+.token.keyword {
+  color: #836c28;
+}
+.token.function,
+.token.class-name {
+  color: #DD4A68;
+}
+.token.regex,
+.token.important,
+.token.variable {
+  color: #5c2699;
+}
+.token.important,
+.token.bold {
+  font-weight: bold;
+}
+.token.italic {
+  font-style: italic;
+}
+</style>
+<style type="text/css">
+body {
+  font-family: sans-serif;
+  max-width: 800px;
+  margin: auto;
+  padding: 1em;
+  line-height: 1.5;
+  box-sizing: border-box;
+}
+body, .footnotes, code { font-size: .9em; }
+li li { font-size: .95em; }
+*, *:before, *:after {
+  box-sizing: inherit;
+}
+pre, img { max-width: 100%; }
+pre, pre:hover {
+  white-space: pre-wrap;
+  word-break: break-all;
+}
+pre code {
+  display: block;
+  overflow-x: auto;
+}
+code { font-family: 'DejaVu Sans Mono', 'Droid Sans Mono', 'Lucida Console', Consolas, Monaco, monospace; }
+:not(pre) > code, code[class] { background-color: #F8F8F8; }
+code.language-undefined, pre > code:not([class]) {
+  background-color: inherit;
+  border: 1px solid #eee;
+}
+table {
+  margin: auto;
+  border-top: 1px solid #666;
+}
+table thead th { border-bottom: 1px solid #ddd; }
+th, td { padding: 5px; }
+thead, tfoot, tr:nth-child(even) { background: #eee; }
+blockquote {
+  color: #666;
+  margin: 0;
+  padding-left: 1em;
+  border-left: 0.5em solid #eee;
+}
+hr, .footnotes::before { border: 1px dashed #ddd; }
+.frontmatter { text-align: center; }
+#TOC .numbered li { list-style: none; }
+#TOC .numbered { padding-left: 0; }
+#TOC .numbered ul { padding-left: 1em; }
+table, .body h2 { border-bottom: 1px solid #666; }
+.body .appendix, .appendix ~ h2 { border-bottom-style: dashed; }
+.footnote-ref a::before { content: "["; }
+.footnote-ref a::after { content: "]"; }
+.footnotes::before {
+  content: "";
+  display: block;
+  max-width: 20em;
+}
+
+@media print {
+  body {
+    font-size: 12pt;
+    max-width: 100%;
+  }
+  tr, img { page-break-inside: avoid; }
+}
+@media only screen and (min-width: 992px) {
+  pre { white-space: pre; }
+}
+</style>
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex/dist/katex.min.css">
+</head>
+<body>
+<div class="include-before">
+</div>
+<div class="frontmatter">
+<div class="title"><h1>Simplified Simulations with the simitation Package for R</h1></div>
+<div class="author"><h2></h2></div>
+<div class="date"><h3></h3></div>
+</div>
+<div class="body">
+<p><strong>This vignette is built in two parts.  Please see ‘Introduction_to_Simitation_2’ for additional information</strong></p>
+<h1 id="tabset">{.tabset}</h1>
+<h2 id="introduction" class="tabset">Introduction</h2>
+<p>Simulation techniques provide a powerful technique for exploring the range of quantitative results that may be produced in a study.  Simulations allow an investigator to design scenarios, generate sample data, and perform analyses.  This is especially helpful for statistical planning of designed studies.  Sensitivity analyses can be easily implemented by altering the scenario.  R programmers have the tools to create and analyze simulation studies.  However, this can involve a complex process with many steps.  The simitation package is designed to simplify this process.  Its methods allow a user to a) generate data for repeated experiements, b) implement the planned statistical methods, and c) analyze the results of the simulation study, all in a single call to a function.  The package also simplifies the process of generating data by allowing for symbolic inputs of variables.  This vignette will introduce the methods of the simitation package and describe relevant applications.</p>
+<p>The steps of a simulation study can be separated into three components:</p>
+<ol>
+<li>
+<p><strong>Generating Data</strong>:  This builds the relevant data structure by randomly generating values for each variable.  The amount of data is determined by the sample size for a single experiment \(n\) and the number of experiments \(B\).</p>
+</li>
+<li>
+<p><strong>Analyzing Individual Experiments</strong>:  The statistical analysis plan for a single experiment with \(n\) data points may involve statistical testing or modeling.  In this step, we apply the intended analyses separately in each of the \(B\) experiments.</p>
+</li>
+<li>
+<p><strong>Analyzing the Results Across the Experiments</strong>:  The results of the \(B\) experiments may also be analyzed collectively.  Here we might be interested in the range of the estimates, the Type I error rate, the observed statistical power, or other empirical measurements from the simulation.</p>
+</li>
+</ol>
+<p>The simitation package develops methods to address these three steps in common statistical tests or models, such as \(t\) tests, tests of proportions, \(\chi^2\) tests of goodness of fit and of independence, linear regression, and logistic regression.  These methods are first developed independently.  Then we unify these methods with a fourth function that implements all three.  As a result, it is possible to generate data, implement the tests or models, and analyze the repeated experiments, often in a single call to a function.</p>
+<p>The following sections provide examples of the methods and applications of the simitation package.</p>
+<h2 id="methods" class="tabset">Methods</h2>
+<pre><code class="language-r">library(data.table)
+library(simitation)
+</code></pre>
+<h3 id="t-tests" class="tabset">\(t\) Tests</h3>
+<h4 id="one-sample-t-tests" class="tabset">One-Sample \(t\) Tests</h4>
+<h5 id="generating-data_1" class="tabset">Generating Data</h5>
+<p>We begin with a setting for an experiment that will collect \(n = 25\) independent, identically distributed data points from a Normal distribution.  We use the sim.t() method to generate data for 2 separate experiments.  All of the simulated records are aggregated into a single data.table object.</p>
+<pre><code class="language-r">simdat.t &lt;- sim.t(n = 25, mean = 0.3, sd = 1, num.experiments = 2000, experiment.name = &quot;experiment&quot;,
+    value.name = &quot;x&quot;, seed = 2187)
+print(simdat.t)
+</code></pre>
+<pre><code>##        experiment          x
+##     1:          1 -1.3035566
+##     2:          1  0.6368336
+##     3:          1 -0.3827636
+##     4:          1 -0.1699399
+##     5:          1  0.7664843
+##    ---                      
+## 49996:       2000 -1.2841918
+## 49997:       2000  0.8375500
+## 49998:       2000 -1.2152655
+## 49999:       2000  1.0100737
+## 50000:       2000  0.8565419
+</code></pre>
+<p>A number of the parameters of this method will be used consistently in many of the methods.  The num.experiments will be used to provide the value of \(B\).  The experiment.name will be the column name that associates a record to one specific experiment among the \(B\) possibilities.  The variable.name also refers to the name of a column heading, in this case for the generated values.  The user may select the random number generator with vstr and set the randomization seed.  Other parameters, such as the mean and sd, are more specific to the setting of a one-sample \(t\) test.</p>
+<h5 id="statistical-testing_1" class="tabset">Statistical Testing</h5>
+<p>The <strong>sim.t.test</strong> method is used to implement one-sample \(t\) tests (see <strong>t.test</strong>) independently across the \(B\) repeated experiments.  The data are grouped based on the value of the column identified by experiment.name.  The user may specify the parameters of that \(t\) test, such as the alternative, mu, and conf.level.  The relevant information for each test is extracted into a data.table object with \(B\) rows.</p>
+<pre><code class="language-r"># value.name = 'x'
+test.statistics.t &lt;- sim.t.test(simdat.t = simdat.t, alternative = &quot;greater&quot;, mu = 0,
+    conf.level = 0.95, experiment.name = &quot;experiment&quot;, value.name = &quot;x&quot;)
+print(test.statistics.t)
+</code></pre>
+<pre><code>##       experiment  statistic df     p.value    lower.ci upper.ci    estimate
+##    1:          1  0.2455748 24 0.404049628 -0.25553242      Inf  0.04282537
+##    2:          2  2.8295295 24 0.004634924  0.18099704      Inf  0.45781760
+##    3:          3  2.6076816 24 0.007716963  0.18501802      Inf  0.53798878
+##    4:          4 -0.6672386 24 0.744507586 -0.43428764      Inf -0.12184977
+##    5:          5  1.0687994 24 0.147896361 -0.14169921      Inf  0.23586996
+##   ---                                                                      
+## 1996:       1996 -2.1526738 24 0.979194437 -0.92381355      Inf -0.51472511
+## 1997:       1997 -0.6203817 24 0.729573346 -0.36998081      Inf -0.09845704
+## 1998:       1998  1.2961337 24 0.103627788 -0.09586838      Inf  0.29959907
+## 1999:       1999  2.9704746 24 0.003327997  0.21034093      Inf  0.49604327
+## 2000:       2000  1.8269903 24 0.040082174  0.02484866      Inf  0.39099947
+##       null.value alternative            method
+##    1:          0     greater One Sample t-test
+##    2:          0     greater One Sample t-test
+##    3:          0     greater One Sample t-test
+##    4:          0     greater One Sample t-test
+##    5:          0     greater One Sample t-test
+##   ---                                         
+## 1996:          0     greater One Sample t-test
+## 1997:          0     greater One Sample t-test
+## 1998:          0     greater One Sample t-test
+## 1999:          0     greater One Sample t-test
+## 2000:          0     greater One Sample t-test
+</code></pre>
+<h5 id="analyzing-the-simulation-study_1" class="tabset">Analyzing the Simulation Study</h5>
+<p>The statistical results from the \(B\) independent \(t\) tests are then analyzed.  Separate analyses of the estimates, test statistics, rates of rejection, and confidence limits are provided.  The rates of rejection are framed in terms of the proportion of the \(p\) values below the significance level \(\alpha\) (or 1 minus the confidence limit).  The estimates, test statistics, and confidence limits are analyzed in terms of means, standard errors, and empirical quantiles.  For the confidence limits, the results will differ based on whether the alternative is two-sided or not.</p>
+<pre><code class="language-r">analysis.t &lt;- analyze.simstudy.t(test.statistics.t = test.statistics.t, conf.level = 0.95,
+    alternative = &quot;greater&quot;, the.quantiles = c(0.025, 0.25, 0.25, 0.5, 0.75, 0.975))
+
+print(analysis.t)
+</code></pre>
+<pre><code>## $estimate.summary
+##          q.2.5      q.25      q.25     q.50      q.75    q.97.5     mean
+## 1: -0.08373098 0.1620234 0.1620234 0.297009 0.4394613 0.6814541 0.299956
+##     st.error
+## 1: 0.1994211
+## 
+## $stat.summary
+##         q.2.5      q.25      q.25     q.50     q.75   q.97.5     mean st.error
+## 1: -0.4509364 0.8274341 0.8274341 1.497493 2.231181 3.692257 1.543732 1.057808
+## 
+## $p.value.summary
+##   reject.proportion non.reject.proportion
+## 1              0.42                  0.58
+## 
+## $ci.limit.summary
+##         q.2.5       q.25       q.25        q.50      q.75    q.97.5        mean
+## 1: -0.4299472 -0.1776303 -0.1776303 -0.04115314 0.1018871 0.3495381 -0.03914668
+##     st.error
+## 1: 0.2045815
+</code></pre>
+<h5 id="full-simulation-study_1" class="tabset">Full Simulation Study</h5>
+<p>The <strong>simstudy.t</strong> method is used to a) generate data for experiments with one group and a continuous outcome that follows a Normal distribution, b) implement one-sample \(t\) tests, and c) analyze these tests across repeated experiments.</p>
+<pre><code class="language-r">study.t &lt;- simstudy.t(n = 25, mean = 0.3, sd = 1, num.experiments = 2000, alternative = &quot;greater&quot;,
+    mu = 0, conf.level = 0.95, the.quantiles = c(0.025, 0.975), experiment.name = &quot;experiment&quot;,
+    value.name = &quot;x&quot;, seed = 817)
+print(study.t)
+</code></pre>
+<pre><code>## $simdat.t
+##        experiment          x
+##     1:          1  1.0668056
+##     2:          1 -0.6146314
+##     3:          1 -0.4373689
+##     4:          1  0.3528564
+##     5:          1  0.8214256
+##    ---                      
+## 49996:       2000 -1.9832003
+## 49997:       2000  2.0778384
+## 49998:       2000  0.9263137
+## 49999:       2000  1.5917713
+## 50000:       2000  2.0528758
+## 
+## $test.statistics.t
+##       experiment  statistic df     p.value    lower.ci upper.ci    estimate
+##    1:          1  1.3583148 24 0.093498018 -0.06851698      Inf  0.26397123
+##    2:          2 -0.1881835 24 0.573842530 -0.36901378      Inf -0.03656656
+##    3:          3  0.5158334 24 0.305345272 -0.20995274      Inf  0.09062445
+##    4:          4  1.3301625 24 0.097983811 -0.06490505      Inf  0.22676605
+##    5:          5  2.8754202 24 0.004163486  0.22032277      Inf  0.54401014
+##   ---                                                                      
+## 1996:       1996  2.4060883 24 0.012092597  0.12504056      Inf  0.43276171
+## 1997:       1997 -0.0905527 24 0.535700234 -0.31350069      Inf -0.01575874
+## 1998:       1998 -0.1703523 24 0.566919482 -0.37240923      Inf -0.03372294
+## 1999:       1999  0.3658412 24 0.358844273 -0.18927582      Inf  0.05148162
+## 2000:       2000  2.1611001 24 0.020442317  0.09949100      Inf  0.47756865
+##       null.value alternative            method
+##    1:          0     greater One Sample t-test
+##    2:          0     greater One Sample t-test
+##    3:          0     greater One Sample t-test
+##    4:          0     greater One Sample t-test
+##    5:          0     greater One Sample t-test
+##   ---                                         
+## 1996:          0     greater One Sample t-test
+## 1997:          0     greater One Sample t-test
+## 1998:          0     greater One Sample t-test
+## 1999:          0     greater One Sample t-test
+## 2000:          0     greater One Sample t-test
+## 
+## $sim.analysis.t
+## $sim.analysis.t$estimate.summary
+##         q.2.5    q.97.5      mean  st.error
+## 1: -0.1003992 0.6894601 0.2987991 0.1995733
+## 
+## $sim.analysis.t$stat.summary
+##         q.2.5   q.97.5     mean st.error
+## 1: -0.4910528 3.739643 1.538052 1.061821
+## 
+## $sim.analysis.t$p.value.summary
+##   reject.proportion non.reject.proportion
+## 1             0.426                 0.574
+## 
+## $sim.analysis.t$ci.limit.summary
+##        q.2.5    q.97.5        mean  st.error
+## 1: -0.451764 0.3668702 -0.04020412 0.2049304
+</code></pre>
+<h4 id="two-sample-t-tests" class="tabset">Two-Sample \(t\) Tests</h4>
+<h5 id="generating-data_2" class="tabset">Generating Data</h5>
+<p>Simulations based on a two-sample \(t\) test follow a similar form.  Here we are simulating an experiment that will collect \(n_x = 30\) data points for group \(x\) and \(n_y = 40\) records for group \(y\).  This is generated with \(\mu_x = 0\) and \(\mu_y = 0.2\), with a common standard deviation of \(\sigma_x = \sigma_y = 1\).  The <strong>sim.t2</strong> method generates data for \(B = 500\) experiments.</p>
+<pre><code class="language-r">simdat.t2 &lt;- sim.t2(nx = 30, ny = 40, meanx = 0, meany = 0.2, sdx = 1, sdy = 1, num.experiments = 2000,
+    experiment.name = &quot;experiment&quot;, group.name = &quot;group&quot;, x.value = &quot;x&quot;, y.value = &quot;y&quot;,
+    value.name = &quot;value&quot;, seed = 17)
+print(simdat.t2)
+</code></pre>
+<pre><code>##         experiment group       value
+##      1:          1     x -1.01500872
+##      2:          1     x -0.33332766
+##      3:          1     x  1.48738135
+##      4:          1     x  1.93147079
+##      5:          1     x -0.88896252
+##     ---                             
+## 139996:       2000     y  0.01007931
+## 139997:       2000     y -0.10497235
+## 139998:       2000     y  0.82645992
+## 139999:       2000     y  1.17011372
+## 140000:       2000     y -0.68289448
+</code></pre>
+<h5 id="statistical-testing_2" class="tabset">Statistical Testing</h5>
+<p>The <strong>sim.t2.test</strong> method is used to implement two-sample \(t\) tests (see <strong>t.test</strong>) independently across the \(B\) repeated experiments.</p>
+<p>The data are grouped based on the value of the column identified by experiment.name.  Within each group, a two-sample \(t\) test is implemented.  The user may specify the parameters of that \(t\) test, such as the alternative, mu, and conf.level.  The relevant information for each test is extracted into a data.table object with \(B\) rows.</p>
+<pre><code class="language-r">test.statistics.t2 &lt;- sim.t2.test(simdat.t2 = simdat.t2, alternative = &quot;less&quot;, mu = 0,
+    conf.level = 0.9, experiment.name = &quot;experiment&quot;, group.name = &quot;group&quot;, x.value = &quot;x&quot;,
+    y.value = &quot;y&quot;, value.name = &quot;value&quot;)
+
+print(test.statistics.t2)
+</code></pre>
+<pre><code>##       experiment  statistic       df    p.value lower.ci     upper.ci
+##    1:          1 -1.3092366 56.87133 0.09785969     -Inf -0.003700406
+##    2:          2  0.1693340 65.47198 0.56697199     -Inf  0.312159844
+##    3:          3 -0.3867491 60.68788 0.35014738     -Inf  0.266807324
+##    4:          4 -0.4782384 67.92909 0.31700804     -Inf  0.192400334
+##    5:          5 -2.0969878 55.73375 0.02027237     -Inf -0.199422297
+##   ---                                                                
+## 1996:       1996 -1.0942145 63.79457 0.13898762     -Inf  0.050009626
+## 1997:       1997 -1.4712822 58.58983 0.07328286     -Inf -0.044334864
+## 1998:       1998 -0.8928183 64.43722 0.18763836     -Inf  0.106394476
+## 1999:       1999 -0.8537740 67.53058 0.19812433     -Inf  0.118551395
+## 2000:       2000 -0.2114247 66.42988 0.41660157     -Inf  0.236242307
+##          estimate  x.estimate  y.estimate null.value alternative
+##    1: -0.38385595  0.00980268  0.39365863          0        less
+##    2:  0.03610729  0.13779642  0.10168913          0        less
+##    3: -0.11352904  0.06046611  0.17399515          0        less
+##    4: -0.11277508 -0.14236254 -0.02958746          0        less
+##    5: -0.52269269  0.03378075  0.55647344          0        less
+##   ---                                                           
+## 1996: -0.27258572 -0.07655110  0.19603462          0        less
+## 1997: -0.37249567 -0.02515971  0.34733596          0        less
+## 1998: -0.23629009  0.02069612  0.25698622          0        less
+## 1999: -0.22980682  0.01119637  0.24100319          0        less
+## 2000: -0.04611950  0.29062346  0.33674296          0        less
+##                        method
+##    1: Welch Two Sample t-test
+##    2: Welch Two Sample t-test
+##    3: Welch Two Sample t-test
+##    4: Welch Two Sample t-test
+##    5: Welch Two Sample t-test
+##   ---                        
+## 1996: Welch Two Sample t-test
+## 1997: Welch Two Sample t-test
+## 1998: Welch Two Sample t-test
+## 1999: Welch Two Sample t-test
+## 2000: Welch Two Sample t-test
+</code></pre>
+<h5 id="analyzing-the-simulation-study_2" class="tabset">Analyzing the Simulation Study</h5>
+<p>We can analyze the \(B\) independent tests by setting the confidence level (e.g. 0.9), form of the alternative hypothesis, and desired quantiles to display in the summary results:</p>
+<pre><code class="language-r">analysis.t2 &lt;- analyze.simstudy.t2(test.statistics.t2 = test.statistics.t2, alternative = &quot;less&quot;,
+    conf.level = 0.9, the.quantiles = c(0.25, 0.5, 0.75))
+print(analysis.t2)
+</code></pre>
+<pre><code>## $estimate.summary
+##          q.25       q.50        q.75       mean st.error
+## 1: -0.3543918 -0.2030921 -0.03372414 -0.1968886  0.24743
+## 
+## $stat.summary
+##         q.25       q.50       q.75       mean st.error
+## 1: -1.475284 -0.8321252 -0.1384061 -0.8218437 1.040748
+## 
+## $df.summary
+##        q.25     q.50     q.75     mean st.error
+## 1: 58.35206 62.95786 66.05865 61.75752 5.113641
+## 
+## $p.value.summary
+##   reject.proportion non.reject.proportion
+## 1             0.314                 0.686
+## 
+## $ci.limit.summary
+##           q.25      q.50      q.75      mean  st.error
+## 1: -0.04240653 0.1078774 0.2811517 0.1151393 0.2483465
+</code></pre>
+<h5 id="full-simulation-study_2" class="tabset">Full Simulation Study</h5>
+<p>The <strong>simstudy.t2</strong> method is used to a) generate data for experiments with two groups and a continuous outcome that follows a Normal distribution, b) implement two-sample \(t\) tests, and c) analyze these tests across repeated experiments.</p>
+<pre><code class="language-r">study.t2 &lt;- simstudy.t2(nx = 30, ny = 40, meanx = 0, meany = 0.2, sdx = 1, sdy = 1,
+    num.experiments = 2000, alternative = &quot;less&quot;, mu = 0, conf.level = 0.9, the.quantiles = c(0.1,
+        0.5, 0.9), experiment.name = &quot;experiment_id&quot;, group.name = &quot;category&quot;, x.value = &quot;a&quot;,
+    y.value = &quot;b&quot;, value.name = &quot;measurement&quot;, seed = 41)
+print(study.t2)
+</code></pre>
+<pre><code>## $simdat.t2
+##         experiment_id category measurement
+##      1:             1        a -0.79436834
+##      2:             1        a -0.05380187
+##      3:             1        a -1.03638729
+##      4:             1        a  0.32088088
+##      5:             1        a -0.15735895
+##     ---                                   
+## 139996:          2000        b -1.24812965
+## 139997:          2000        b  1.01921469
+## 139998:          2000        b  1.92539513
+## 139999:          2000        b  0.43106238
+## 140000:          2000        b  0.39878221
+## 
+## $test.statistics.t2
+##       experiment_id  statistic       df     p.value lower.ci     upper.ci
+##    1:             1 -2.4406805 66.79080 0.008659102     -Inf -0.240911381
+##    2:             2 -0.5966090 50.20063 0.276724805     -Inf  0.166058545
+##    3:             3 -2.0641443 67.73438 0.021418533     -Inf -0.166332119
+##    4:             4 -1.1731405 66.66282 0.122457116     -Inf  0.036474751
+##    5:             5 -1.9871163 65.72674 0.025539963     -Inf -0.159738152
+##   ---                                                                    
+## 1996:          1996 -1.4066423 51.86134 0.082748915     -Inf -0.028622042
+## 1997:          1997 -1.2632246 67.76179 0.105418846     -Inf  0.006960161
+## 1998:          1998 -1.2048580 60.53539 0.116473685     -Inf  0.021924034
+## 1999:          1999  0.5838079 52.11040 0.719065871     -Inf  0.441892144
+## 2000:          2000 -0.3548475 59.68726 0.361977295     -Inf  0.206616067
+##          estimate  x.estimate  y.estimate null.value alternative
+##    1: -0.51293286 -0.31924839  0.19368447          0        less
+##    2: -0.14112115 -0.20991200 -0.06879084          0        less
+##    3: -0.44590567 -0.12689675  0.31900892          0        less
+##    4: -0.35293676  0.09945739  0.45239415          0        less
+##    5: -0.45833178 -0.08318576  0.37514602          0        less
+##   ---                                                           
+## 1996: -0.37088896  0.08419039  0.45507935          0        less
+## 1997: -0.28411916 -0.05211736  0.23200180          0        less
+## 1998: -0.29080441  0.02080981  0.31161422          0        less
+## 1999:  0.13709093  0.10303569 -0.03405524          0        less
+## 2000: -0.07791007  0.08914319  0.16705325          0        less
+##                        method
+##    1: Welch Two Sample t-test
+##    2: Welch Two Sample t-test
+##    3: Welch Two Sample t-test
+##    4: Welch Two Sample t-test
+##    5: Welch Two Sample t-test
+##   ---                        
+## 1996: Welch Two Sample t-test
+## 1997: Welch Two Sample t-test
+## 1998: Welch Two Sample t-test
+## 1999: Welch Two Sample t-test
+## 2000: Welch Two Sample t-test
+## 
+## $sim.analysis.t2
+## $sim.analysis.t2$estimate.summary
+##          q.10       q.50       q.90       mean  st.error
+## 1: -0.4995356 -0.2004179 0.09904178 -0.1983179 0.2413597
+## 
+## $sim.analysis.t2$stat.summary
+##         q.10      q.50      q.90       mean st.error
+## 1: -2.072232 -0.848695 0.4213835 -0.8301772 1.019355
+## 
+## $sim.analysis.t2$df.summary
+##        q.10     q.50    q.90     mean st.error
+## 1: 54.78029 62.84369 67.5426 61.79574 5.090286
+## 
+## $sim.analysis.t2$p.value.summary
+##   reject.proportion non.reject.proportion
+## 1             0.317                 0.683
+## 
+## $sim.analysis.t2$ci.limit.summary
+##          q.10      q.50     q.90      mean  st.error
+## 1: -0.1842525 0.1102616 0.416871 0.1126389 0.2419847
+</code></pre>
+<h3 id="tests-of-propotions" class="tabset">Tests of Propotions</h3>
+<h4 id="one-sample-tests-of-proportions" class="tabset">One-Sample Tests of Proportions</h4>
+<h5 id="generating-data_3" class="tabset">Generating Data</h5>
+<p>The <strong>sim.prop</strong> method is used to generate binary data for a one-sample proportions test based on a probability of success \(p\), the sample size for one experiment \(n\), and the overall number of experiments \(B\).</p>
+<pre><code class="language-r">simdat.prop &lt;- sim.prop(n = 30, p = 0.45, num.experiments = 2000, experiment.name = &quot;simulation_id&quot;,
+    value.name = &quot;success&quot;, seed = 104)
+print(simdat.prop)
+</code></pre>
+<pre><code>##        simulation_id success
+##     1:             1       0
+##     2:             1       1
+##     3:             1       1
+##     4:             1       1
+##     5:             1       1
+##    ---                      
+## 59996:          2000       0
+## 59997:          2000       1
+## 59998:          2000       1
+## 59999:          2000       1
+## 60000:          2000       1
+</code></pre>
+<h5 id="statistical-testing_3" class="tabset">Statistical Testing</h5>
+<p>The <strong>sim.prop.test</strong> method is used to implement one-sample tests of proportions (see <strong>prop.test</strong>) independently across the \(B\) repeated experiments.   This is testing a hypothesized value of \(p\) (which defaults to 0.5) in each of the \(B\) simulated experiments.</p>
+<pre><code class="language-r">test.statistics.prop &lt;- sim.prop.test(simdat.prop = simdat.prop, p = 0.5, alternative = &quot;two.sided&quot;,
+    conf.level = 0.99, correct = T, experiment.name = &quot;simulation_id&quot;, value.name = &quot;success&quot;)
+print(test.statistics.prop)
+</code></pre>
+<pre><code>##       simulation_id  statistic df   p.value  lower.ci  upper.ci  estimate
+##    1:             1 0.83333333  1 0.3613104 0.1964758 0.6421093 0.4000000
+##    2:             2 1.63333333  1 0.2012426 0.1723732 0.6124495 0.3666667
+##    3:             3 0.30000000  1 0.5838824 0.2214088 0.6709667 0.4333333
+##    4:             4 0.03333333  1 0.8551321 0.2471442 0.6990393 0.4666667
+##    5:             5 0.83333333  1 0.3613104 0.1964758 0.6421093 0.4000000
+##   ---                                                                    
+## 1996:          1996 0.03333333  1 0.8551321 0.2471442 0.6990393 0.4666667
+## 1997:          1997 1.63333333  1 0.2012426 0.1723732 0.6124495 0.3666667
+## 1998:          1998 0.00000000  1 1.0000000 0.2872157 0.7127843 0.5000000
+## 1999:          1999 0.03333333  1 0.8551321 0.3009607 0.7528558 0.5333333
+## 2000:          2000 0.83333333  1 0.3613104 0.1964758 0.6421093 0.4000000
+##       null.value alternative
+##    1:        0.5   two.sided
+##    2:        0.5   two.sided
+##    3:        0.5   two.sided
+##    4:        0.5   two.sided
+##    5:        0.5   two.sided
+##   ---                       
+## 1996:        0.5   two.sided
+## 1997:        0.5   two.sided
+## 1998:        0.5   two.sided
+## 1999:        0.5   two.sided
+## 2000:        0.5   two.sided
+##                                                        method
+##    1:    1-sample proportions test with continuity correction
+##    2:    1-sample proportions test with continuity correction
+##    3:    1-sample proportions test with continuity correction
+##    4:    1-sample proportions test with continuity correction
+##    5:    1-sample proportions test with continuity correction
+##   ---                                                        
+## 1996:    1-sample proportions test with continuity correction
+## 1997:    1-sample proportions test with continuity correction
+## 1998: 1-sample proportions test without continuity correction
+## 1999:    1-sample proportions test with continuity correction
+## 2000:    1-sample proportions test with continuity correction
+</code></pre>
+<h5 id="analyzing-the-simulation-study_3" class="tabset">Analyzing the Simulation Study</h5>
+<p>The <strong>analyze.simstudy.prop</strong> method summarizes the \(B\) one-sample tests of proportions across the repeated experiments.</p>
+<pre><code class="language-r">analysis.prop &lt;- analyze.simstudy.prop(test.statistics.prop = test.statistics.prop,
+    alternative = &quot;two.sided&quot;, conf.level = 0.99, the.quantiles = c(0.005, 0.995))
+print(analysis.prop)
+</code></pre>
+<pre><code>## $estimate.summary
+##        q.0.5 q.99.5      mean   st.error
+## 1: 0.2333333    0.7 0.4506667 0.09025437
+## 
+## $stat.summary
+##    q.0.5 q.99.5    mean st.error
+## 1:     0    7.5 0.96905 1.470489
+## 
+## $p.value.summary
+##   reject.proportion non.reject.proportion
+## 1            0.0115                0.9885
+## 
+## $ci.range.summary
+##       q.0.5    q.99.5      mean  st.error
+## 1: 0.399732 0.4518951 0.4419383 0.0116282
+## 
+## $ci.proportion.above.null.summary
+##          q.0.5    q.99.5      mean  st.error
+## 1: -0.03743854 0.8805962 0.4082219 0.1695751
+## 
+## $ci.proportion.below.null.summary
+##        q.0.5   q.99.5      mean  st.error
+## 1: 0.1194038 1.037439 0.5917781 0.1695751
+</code></pre>
+<h5 id="full-simulation-study_3" class="tabset">Full Simulation Study</h5>
+<p>The <strong>simstudy.prop2</strong> method is used to a) generate data for experiments with one group and a binary outcome, b) implement one-sample tests of proportions, and c) analyze these tests across the repeated experiments.</p>
+<pre><code class="language-r">study.prop &lt;- simstudy.prop(n = 30, p.actual = 0.42, p.hypothesized = 0.5, num.experiments = 2000,
+    alternative = &quot;less&quot;, conf.level = 0.92, correct = T, the.quantiles = c(0.04,
+        0.5, 0.96), experiment.name = &quot;simulation_id&quot;, value.name = &quot;success&quot;, seed = 8001)
+print(study.prop)
+</code></pre>
+<pre><code>## $simdat.prop
+##        simulation_id success
+##     1:             1       1
+##     2:             1       0
+##     3:             1       1
+##     4:             1       1
+##     5:             1       1
+##    ---                      
+## 59996:          2000       0
+## 59997:          2000       0
+## 59998:          2000       0
+## 59999:          2000       0
+## 60000:          2000       1
+## 
+## $test.statistics.prop
+##       simulation_id  statistic df     p.value lower.ci  upper.ci  estimate
+##    1:             1 0.30000000  1 0.291941210        0 0.5767450 0.4333333
+##    2:             2 4.03333333  1 0.022304859        0 0.4441283 0.3000000
+##    3:             3 0.03333333  1 0.427566070        0 0.6085396 0.4666667
+##    4:             4 1.63333333  1 0.100621310        0 0.5115639 0.3666667
+##    5:             5 0.00000000  1 0.500000000        0 0.6242420 0.5000000
+##   ---                                                                     
+## 1996:          1996 0.30000000  1 0.291941210        0 0.5767450 0.4333333
+## 1997:          1997 1.63333333  1 0.100621310        0 0.5115639 0.3666667
+## 1998:          1998 4.03333333  1 0.022304859        0 0.4441283 0.3000000
+## 1999:          1999 0.03333333  1 0.427566070        0 0.6085396 0.4666667
+## 2000:          2000 5.63333333  1 0.008811045        0 0.4094787 0.2666667
+##       null.value alternative
+##    1:        0.5        less
+##    2:        0.5        less
+##    3:        0.5        less
+##    4:        0.5        less
+##    5:        0.5        less
+##   ---                       
+## 1996:        0.5        less
+## 1997:        0.5        less
+## 1998:        0.5        less
+## 1999:        0.5        less
+## 2000:        0.5        less
+##                                                        method
+##    1:    1-sample proportions test with continuity correction
+##    2:    1-sample proportions test with continuity correction
+##    3:    1-sample proportions test with continuity correction
+##    4:    1-sample proportions test with continuity correction
+##    5: 1-sample proportions test without continuity correction
+##   ---                                                        
+## 1996:    1-sample proportions test with continuity correction
+## 1997:    1-sample proportions test with continuity correction
+## 1998:    1-sample proportions test with continuity correction
+## 1999:    1-sample proportions test with continuity correction
+## 2000:    1-sample proportions test with continuity correction
+## 
+## $sim.analysis.prop
+## $sim.analysis.prop$estimate.summary
+##          q.4      q.50      q.96    mean  st.error
+## 1: 0.2666667 0.4333333 0.5666667 0.42205 0.0885905
+## 
+## $sim.analysis.prop$stat.summary
+##    q.4      q.50     q.96     mean st.error
+## 1:   0 0.5666667 5.633333 1.317267 1.846495
+## 
+## $sim.analysis.prop$p.value.summary
+##   reject.proportion non.reject.proportion
+## 1            0.2135                0.7865
+## 
+## $sim.analysis.prop$ci.limit.summary
+##          q.4     q.50      q.96      mean   st.error
+## 1: 0.4094787 0.576745 0.7008002 0.5624227 0.08459248
+</code></pre>
+<p><strong>NOTE:  Please see ‘Introduction_to_Simitation_2’ for the second part of this vignette..</strong></p>
+</div>
+<div class="include-after">
+</div>
+<script src="https://cdn.jsdelivr.net/npm/prismjs@1.29.0/components/prism-core.min.js" defer></script>
+<script src="https://cdn.jsdelivr.net/npm/prismjs@1.29.0/plugins/autoloader/prism-autoloader.min.js" defer></script>
+<script src="https://cdn.jsdelivr.net/combine/npm/katex/dist/katex.min.js,npm/katex/dist/contrib/auto-render.min.js,npm/@xiee/utils/js/render-katex.js" defer></script>
+</body>
+</html>

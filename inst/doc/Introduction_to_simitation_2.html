@@ -1,0 +1,1604 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
+<title>Simplified Simulations with the simitation Package for R 2</title>
+<style type="text/css">
+/**
+ * Prism.s theme ported from highlight.js's xcode style
+ */
+pre code {
+  padding: 1em;
+}
+.token.comment {
+  color: #007400;
+}
+.token.punctuation {
+  color: #999;
+}
+.token.tag,
+.token.selector {
+  color: #aa0d91;
+}
+.token.boolean,
+.token.number,
+.token.constant,
+.token.symbol {
+  color: #1c00cf;
+}
+.token.property,
+.token.attr-name,
+.token.string,
+.token.char,
+.token.builtin {
+  color: #c41a16;
+}
+.token.inserted {
+  background-color: #ccffd8;
+}
+.token.deleted {
+  background-color: #ffebe9;
+}
+.token.operator,
+.token.entity,
+.token.url,
+.language-css .token.string,
+.style .token.string {
+  color: #9a6e3a;
+}
+.token.atrule,
+.token.attr-value,
+.token.keyword {
+  color: #836c28;
+}
+.token.function,
+.token.class-name {
+  color: #DD4A68;
+}
+.token.regex,
+.token.important,
+.token.variable {
+  color: #5c2699;
+}
+.token.important,
+.token.bold {
+  font-weight: bold;
+}
+.token.italic {
+  font-style: italic;
+}
+</style>
+<style type="text/css">
+body {
+  font-family: sans-serif;
+  max-width: 800px;
+  margin: auto;
+  padding: 1em;
+  line-height: 1.5;
+  box-sizing: border-box;
+}
+body, .footnotes, code { font-size: .9em; }
+li li { font-size: .95em; }
+*, *:before, *:after {
+  box-sizing: inherit;
+}
+pre, img { max-width: 100%; }
+pre, pre:hover {
+  white-space: pre-wrap;
+  word-break: break-all;
+}
+pre code {
+  display: block;
+  overflow-x: auto;
+}
+code { font-family: 'DejaVu Sans Mono', 'Droid Sans Mono', 'Lucida Console', Consolas, Monaco, monospace; }
+:not(pre) > code, code[class] { background-color: #F8F8F8; }
+code.language-undefined, pre > code:not([class]) {
+  background-color: inherit;
+  border: 1px solid #eee;
+}
+table {
+  margin: auto;
+  border-top: 1px solid #666;
+}
+table thead th { border-bottom: 1px solid #ddd; }
+th, td { padding: 5px; }
+thead, tfoot, tr:nth-child(even) { background: #eee; }
+blockquote {
+  color: #666;
+  margin: 0;
+  padding-left: 1em;
+  border-left: 0.5em solid #eee;
+}
+hr, .footnotes::before { border: 1px dashed #ddd; }
+.frontmatter { text-align: center; }
+#TOC .numbered li { list-style: none; }
+#TOC .numbered { padding-left: 0; }
+#TOC .numbered ul { padding-left: 1em; }
+table, .body h2 { border-bottom: 1px solid #666; }
+.body .appendix, .appendix ~ h2 { border-bottom-style: dashed; }
+.footnote-ref a::before { content: "["; }
+.footnote-ref a::after { content: "]"; }
+.footnotes::before {
+  content: "";
+  display: block;
+  max-width: 20em;
+}
+
+@media print {
+  body {
+    font-size: 12pt;
+    max-width: 100%;
+  }
+  tr, img { page-break-inside: avoid; }
+}
+@media only screen and (min-width: 992px) {
+  pre { white-space: pre; }
+}
+</style>
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex/dist/katex.min.css">
+</head>
+<body>
+<div class="include-before">
+</div>
+<div class="frontmatter">
+<div class="title"><h1>Simplified Simulations with the simitation Package for R 2</h1></div>
+<div class="author"><h2></h2></div>
+<div class="date"><h3></h3></div>
+</div>
+<div class="body">
+<pre><code class="language-r">library(data.table)
+library(simitation)
+</code></pre>
+<p><strong>This is Part 2 of the vignette.  Please refer to ‘Introduction_to_Simitation’ for Part 1.</strong></p>
+<h4 id="two-sample-tests-of-the-difference-of-proportions" class="tabset">Two-Sample Tests of the Difference of Proportions</h4>
+<h5 id="generating-data_1" class="tabset">Generating Data</h5>
+<p>The <strong>sim.prop2</strong> method is used to generate binary data for a two-sample proportions test based on a probabilities of success \(p_x\) and \(p_y\) for samples of respective sizes \(n_x\) and \(n_y\) and the overall number of experiments \(B\).</p>
+<pre><code class="language-r">simdat.prop2 &lt;- sim.prop2(nx = 30, ny = 40, px = 0.5, py = 0.55, num.experiments = 2000,
+    experiment.name = &quot;sim&quot;, group.name = &quot;treatment&quot;, x.value = &quot;group_1&quot;, y.value = &quot;group_2&quot;,
+    value.name = &quot;correct_answer&quot;, seed = 3)
+
+print(simdat.prop2)
+</code></pre>
+<pre><code>##          sim treatment correct_answer
+##      1:    1   group_1              1
+##      2:    1   group_1              0
+##      3:    1   group_1              1
+##      4:    1   group_1              0
+##      5:    1   group_1              0
+##     ---                              
+## 139996: 2000   group_2              0
+## 139997: 2000   group_2              0
+## 139998: 2000   group_2              1
+## 139999: 2000   group_2              0
+## 140000: 2000   group_2              1
+</code></pre>
+<h5 id="statistical-testing_1" class="tabset">Statistical Testing</h5>
+<p>The <strong>sim.prop2.test</strong> method is used to implement two-sample tests of proportions (see <strong>prop.test</strong>) independently across the \(B\) repeated experiments.  This is testing a hypothesized value of \(p = p_x - p_y\) (which defaults to zero) in each of the \(B\) simulated experiments.</p>
+<pre><code class="language-r">test.statistics.prop2 &lt;- sim.prop2.test(simdat.prop2 = simdat.prop2, p = NULL, alternative = &quot;less&quot;,
+    conf.level = 0.95, correct = T, experiment.name = &quot;sim&quot;, group.name = &quot;treatment&quot;,
+    x.value = &quot;group_1&quot;, y.value = &quot;group_2&quot;, value.name = &quot;correct_answer&quot;)
+
+print(test.statistics.prop2)
+</code></pre>
+<pre><code>##        sim    statistic df   p.value lower.ci   upper.ci    estimate x.estimate
+##    1:    1 8.101852e-01  1 0.1840328       -1 0.08648872 -0.13333333  0.5666667
+##    2:    2 5.328372e-31  1 0.5000000       -1 0.19060611 -0.01666667  0.6333333
+##    3:    3 1.188859e-02  1 0.4565874       -1 0.17665899 -0.04166667  0.6333333
+##    4:    4 1.226521e-03  1 0.4860312       -1 0.19173799 -0.03333333  0.5666667
+##    5:    5 7.578619e-31  1 0.5000000       -1 0.19795590 -0.01666667  0.5333333
+##   ---                                                                          
+## 1996: 1996 7.578619e-31  1 0.5000000       -1 0.19795590 -0.01666667  0.5333333
+## 1997: 1997 1.031504e+00  1 0.1549028       -1 0.07393313 -0.15000000  0.5000000
+## 1998: 1998 1.388221e+00  1 0.1193529       -1 0.05394214 -0.16666667  0.5333333
+## 1999: 1999 2.759672e-01  1 0.2996784       -1 0.13320075 -0.09166667  0.5333333
+## 2000: 2000 6.428819e-01  1 0.2113346       -1 0.10012327 -0.12500000  0.5000000
+##       y.estimate null.value alternative
+##    1:      0.700          0        less
+##    2:      0.650          0        less
+##    3:      0.675          0        less
+##    4:      0.600          0        less
+##    5:      0.550          0        less
+##   ---                                  
+## 1996:      0.550          0        less
+## 1997:      0.650          0        less
+## 1998:      0.700          0        less
+## 1999:      0.625          0        less
+## 2000:      0.625          0        less
+##                                                                     method
+##    1: 2-sample test for equality of proportions with continuity correction
+##    2: 2-sample test for equality of proportions with continuity correction
+##    3: 2-sample test for equality of proportions with continuity correction
+##    4: 2-sample test for equality of proportions with continuity correction
+##    5: 2-sample test for equality of proportions with continuity correction
+##   ---                                                                     
+## 1996: 2-sample test for equality of proportions with continuity correction
+## 1997: 2-sample test for equality of proportions with continuity correction
+## 1998: 2-sample test for equality of proportions with continuity correction
+## 1999: 2-sample test for equality of proportions with continuity correction
+## 2000: 2-sample test for equality of proportions with continuity correction
+</code></pre>
+<h5 id="analyzing-the-simulation-study_1" class="tabset">Analyzing the Simulation Study</h5>
+<p>The <strong>analyze.simstudy.prop2</strong> method summarizes the \(B\) two-sample tests of proportions across the repeated experiments.</p>
+<pre><code class="language-r">analysis.prop2 &lt;- analyze.simstudy.prop2(test.statistics.prop2 = test.statistics.prop2,
+    alternative = &quot;less&quot;, conf.level = 0.95, the.quantiles = c(0.025, 0.1, 0.9, 0.975))
+print(analysis.prop2)
+</code></pre>
+<pre><code>## $estimate.summary
+##         q.2.5       q.10      q.90   q.97.5        mean  st.error
+## 1: -0.2833333 -0.2083333 0.1166667 0.191875 -0.04835833 0.1234189
+## 
+## $stat.summary
+##    q.2.5         q.10     q.90   q.97.5      mean st.error
+## 1:     0 5.498929e-31 2.442618 5.048447 0.8499318  1.38748
+## 
+## $p.value.summary
+##   reject.proportion non.reject.proportion
+## 1             0.073                 0.927
+## 
+## $df.summary
+##    q.2.5 q.10 q.90 q.97.5 mean st.error
+## 1:     1    1    1      1    1        0
+## 
+## $ci.limit.summary
+##          q.2.5       q.10      q.90   q.97.5     mean  st.error
+## 1: -0.06674141 0.01436183 0.3376187 0.415833 0.173367 0.1235462
+</code></pre>
+<h5 id="full-simulation-study_1" class="tabset">Full Simulation Study</h5>
+<p>The <strong>simstudy.prop2</strong> method is used to a) generate data for experiments with two groups and a binary outcome, b) implement two-sample tests of proportions, and c) analyze these tests across the repeated experiments.</p>
+<pre><code class="language-r">study.prop2 &lt;- simstudy.prop2(nx = 30, ny = 40, px = 0.5, py = 0.55, num.experiments = 2000,
+    p = NULL, alternative = &quot;less&quot;, conf.level = 0.95, correct = T, the.quantiles = c(0.025,
+        0.5, 0.975), experiment.name = &quot;sim&quot;, group.name = &quot;treatment&quot;, x.value = &quot;treatment_1&quot;,
+    y.value = &quot;treatment_2&quot;, value.name = &quot;correct_answer&quot;, seed = 904)
+print(study.prop2)
+</code></pre>
+<pre><code>## $simdat.prop2
+##          sim   treatment correct_answer
+##      1:    1 treatment_1              0
+##      2:    1 treatment_1              1
+##      3:    1 treatment_1              1
+##      4:    1 treatment_1              1
+##      5:    1 treatment_1              0
+##     ---                                
+## 139996: 2000 treatment_2              0
+## 139997: 2000 treatment_2              1
+## 139998: 2000 treatment_2              0
+## 139999: 2000 treatment_2              0
+## 140000: 2000 treatment_2              1
+## 
+## $test.statistics.prop2
+##        sim  statistic df   p.value lower.ci   upper.ci    estimate x.estimate
+##    1:    1 0.09674447  1 0.3778860       -1 0.16012343 -0.06666667  0.4333333
+##    2:    2 3.10657248  1 0.9610116       -1 0.46206681  0.24166667  0.6666667
+##    3:    3 0.64288194  1 0.2113346       -1 0.10012327 -0.12500000  0.5000000
+##    4:    4 0.43116981  1 0.2557077       -1 0.11825463 -0.10833333  0.4666667
+##    5:    5 0.09843750  1 0.3768564       -1 0.15917041 -0.06666667  0.5333333
+##   ---                                                                        
+## 1996: 1996 0.74955455  1 0.1933086       -1 0.09250375 -0.13333333  0.4666667
+## 1997: 1997 0.05833333  1 0.4045749       -1 0.16910931 -0.05833333  0.4666667
+## 1998: 1998 0.89413373  1 0.1721798       -1 0.07961568 -0.14166667  0.3333333
+## 1999: 1999 0.64288194  1 0.2113346       -1 0.10012327 -0.12500000  0.5000000
+## 2000: 2000 0.06076389  1 0.4026463       -1 0.16576452 -0.05833333  0.5666667
+##       y.estimate null.value alternative
+##    1:      0.500          0        less
+##    2:      0.425          0        less
+##    3:      0.625          0        less
+##    4:      0.575          0        less
+##    5:      0.600          0        less
+##   ---                                  
+## 1996:      0.600          0        less
+## 1997:      0.525          0        less
+## 1998:      0.475          0        less
+## 1999:      0.625          0        less
+## 2000:      0.625          0        less
+##                                                                     method
+##    1: 2-sample test for equality of proportions with continuity correction
+##    2: 2-sample test for equality of proportions with continuity correction
+##    3: 2-sample test for equality of proportions with continuity correction
+##    4: 2-sample test for equality of proportions with continuity correction
+##    5: 2-sample test for equality of proportions with continuity correction
+##   ---                                                                     
+## 1996: 2-sample test for equality of proportions with continuity correction
+## 1997: 2-sample test for equality of proportions with continuity correction
+## 1998: 2-sample test for equality of proportions with continuity correction
+## 1999: 2-sample test for equality of proportions with continuity correction
+## 2000: 2-sample test for equality of proportions with continuity correction
+## 
+## $sim.analysis.prop2
+## $sim.analysis.prop2$estimate.summary
+##     q.2.5  q.50    q.97.5        mean  st.error
+## 1: -0.275 -0.05 0.1916667 -0.04718333 0.1198669
+## 
+## $sim.analysis.prop2$stat.summary
+##    q.2.5      q.50   q.97.5     mean st.error
+## 1:     0 0.2507323 4.444274 0.793184 1.308529
+## 
+## $sim.analysis.prop2$p.value.summary
+##   reject.proportion non.reject.proportion
+## 1             0.067                 0.933
+## 
+## $sim.analysis.prop2$df.summary
+##    q.2.5 q.50 q.97.5 mean st.error
+## 1:     1    1      1    1        0
+## 
+## $sim.analysis.prop2$ci.limit.summary
+##          q.2.5      q.50    q.97.5      mean  st.error
+## 1: -0.05750388 0.1773755 0.4157645 0.1745985 0.1197995
+</code></pre>
+<h3 id="chi-2-tests" class="tabset">\(\chi^2\) Tests</h3>
+<h4 id="the-chi-2-test-of-the-goodness-of-fit" class="tabset">The \(\chi^2\) Test of the Goodness of Fit</h4>
+<h5 id="generating-data_2" class="tabset">Generating Data</h5>
+<p>The <strong>sim.chisq.gf</strong> method is used to generate categorical data for a \(\chi^2\) test of goodness of fit.  The specifications include the sample size \(n\) of each experiment, the categorical values to be sampled, the probability density, and the overall number of experiments \(B\).</p>
+<pre><code class="language-r">simdat.chisq.gf &lt;- sim.chisq.gf(n = 100, values = LETTERS[1:4], prob = c(0.4, 0.3,
+    0.2, 0.1), num.experiments = 2000, experiment.name = &quot;experiment_id&quot;, value.name = &quot;classification&quot;,
+    seed = 31)
+
+print(simdat.chisq.gf)
+</code></pre>
+<pre><code>##         experiment_id classification
+##      1:             1              B
+##      2:             1              A
+##      3:             1              A
+##      4:             1              A
+##      5:             1              A
+##     ---                             
+## 199996:          2000              A
+## 199997:          2000              A
+## 199998:          2000              D
+## 199999:          2000              A
+## 200000:          2000              B
+</code></pre>
+<h5 id="statistical-testing_2" class="tabset">Statistical Testing</h5>
+<p>The <strong>sim.chisq.test.gf</strong> method is used to implement \(\chi^2\) tests of goodness of fit (see chisq.test) independently across the \(B\) repeated experiments.  This is testing the observed counts of the categorical values relative to those expected from the hypothesized probabilities.</p>
+<pre><code class="language-r">test.statistics.chisq.test.gf &lt;- sim.chisq.test.gf(simdat.chisq.gf = simdat.chisq.gf,
+    hypothesized.probs = c(0.25, 0.3, 0.15, 0.3), correct = F, experiment.name = &quot;experiment_id&quot;,
+    value.name = &quot;classification&quot;)
+
+print(test.statistics.chisq.test.gf)
+</code></pre>
+<pre><code>##       experiment_id statistic df      p.value
+##    1:             1  19.99333  3 1.702833e-04
+##    2:             2  33.84000  3 2.141413e-07
+##    3:             3  31.46000  3 6.800906e-07
+##    4:             4  32.40000  3 4.309971e-07
+##    5:             5  25.62667  3 1.141766e-05
+##   ---                                        
+## 1996:          1996  24.16000  3 2.313046e-05
+## 1997:          1997  22.47333  3 5.199072e-05
+## 1998:          1998  23.40667  3 3.322050e-05
+## 1999:          1999  27.27333  3 5.159507e-06
+## 2000:          2000  28.40000  3 2.993459e-06
+</code></pre>
+<h5 id="analyzing-the-simulation-study_2" class="tabset">Analyzing the Simulation Study</h5>
+<p>The <strong>analyze.simstudy.chisq.test.gf</strong> method summarizes the \(B\) \(\chi^2\) tests of goodness of fit across the repeated experiments.</p>
+<pre><code class="language-r">analysis.chisq.gf &lt;- analyze.simstudy.chisq.test.gf(test.statistics.chisq.test.gf = test.statistics.chisq.test.gf,
+    conf.level = 0.95, the.quantiles = c(0.25, 0.75))
+print(analysis.chisq.gf)
+</code></pre>
+<pre><code>## $stat.summary
+##     q.25     q.75     mean st.error
+## 1: 21.39 32.47333 27.27865 8.331138
+## 
+## $p.value.summary
+##    reject.proportion non.reject.proportion
+## 1:             0.998                 0.002
+</code></pre>
+<h5 id="full-simulation-study_2" class="tabset">Full Simulation Study</h5>
+<p>The <strong>simstudy.chisq.test.gf</strong> method is used to a) generate data for experiments with categorical data, b) implement \(\chi^2\) tests of goodness of fit, and c) analyze these tests across the repeated experiments.</p>
+<pre><code class="language-r">study.chisq.gf &lt;- simstudy.chisq.test.gf(n = 75, values = LETTERS[1:4], actual.probs = c(0.3,
+    0.3, 0.2, 0.2), hypothesized.probs = rep.int(x = 0.25, times = 4), num.experiments = 40,
+    conf.level = 0.95, correct = F, the.quantiles = c(0.25, 0.75), experiment.name = &quot;experiment_id&quot;,
+    value.name = &quot;classification&quot;, seed = 61)
+
+print(study.chisq.gf)
+</code></pre>
+<pre><code>## $simdat
+##       experiment_id classification
+##    1:             1              B
+##    2:             1              B
+##    3:             1              B
+##    4:             1              D
+##    5:             1              A
+##   ---                             
+## 2996:            40              D
+## 2997:            40              D
+## 2998:            40              A
+## 2999:            40              C
+## 3000:            40              D
+## 
+## $test.statistics
+##     experiment_id  statistic df      p.value
+##  1:             1  2.6000000  3 0.4574895469
+##  2:             2  4.8400000  3 0.1838951036
+##  3:             3 11.4533333  3 0.0095108954
+##  4:             4  9.8533333  3 0.0198548943
+##  5:             5  2.0666667  3 0.5586857021
+##  6:             6  7.5066667  3 0.0573874040
+##  7:             7  5.5866667  3 0.1335459099
+##  8:             8  4.2000000  3 0.2406618852
+##  9:             9  8.1466667  3 0.0430758306
+## 10:            10  4.9466667  3 0.1757443898
+## 11:            11 10.4933333  3 0.0148061892
+## 12:            12  3.5600000  3 0.3130632920
+## 13:            13  2.2800000  3 0.5163632002
+## 14:            14  2.2800000  3 0.5163632002
+## 15:            15  1.0000000  3 0.8012519569
+## 16:            16 19.4533333  3 0.0002202992
+## 17:            17  2.3866667  3 0.4961214445
+## 18:            18  5.1600000  3 0.1604491360
+## 19:            19  1.7466667  3 0.6266090464
+## 20:            20  2.8133333  3 0.4213097138
+## 21:            21  3.6666667  3 0.2997805886
+## 22:            22  2.8133333  3 0.4213097138
+## 23:            23  2.0666667  3 0.5586857021
+## 24:            24  1.3200000  3 0.7243894462
+## 25:            25 14.8666667  3 0.0019342103
+## 26:            26  0.7866667  3 0.8526534606
+## 27:            27  9.0000000  3 0.0292908865
+## 28:            28  1.3200000  3 0.7243894462
+## 29:            29  9.0000000  3 0.0292908865
+## 30:            30  7.1866667  3 0.0661801654
+## 31:            31 14.6533333  3 0.0021381941
+## 32:            32 12.3066667  3 0.0064031877
+## 33:            33  5.2666667  3 0.1532800232
+## 34:            34  2.3866667  3 0.4961214445
+## 35:            35  6.3333333  3 0.0964723224
+## 36:            36  3.9866667  3 0.2629074931
+## 37:            37  7.9333333  3 0.0474097862
+## 38:            38  9.3200000  3 0.0253254084
+## 39:            39  9.2133333  3 0.0265849405
+## 40:            40 13.2666667  3 0.0040940177
+##     experiment_id  statistic df      p.value
+## 
+## $sim.analysis
+## $sim.analysis$stat.summary
+##        q.25     q.75     mean st.error
+## 1: 2.386667 9.053333 6.226667 4.513542
+## 
+## $sim.analysis$p.value.summary
+##    reject.proportion non.reject.proportion
+## 1:              0.35                  0.65
+</code></pre>
+<h4 id="the-chi-2-test-of-independence" class="tabset">The \(\chi^2\) Test of Independence</h4>
+<h5 id="generating-data_3" class="tabset">Generating Data</h5>
+<p>The <strong>sim.chisq.ind</strong> method is used to generate categorical outcome data across the levels of a categorical independent variable for use in a \(\chi^2\) test of independence.  The specifications include the sample size \(n\) of each level of the independent variable (and within each experiment), the categorical values to be sampled, the probability density within each categorical level (specified as a matrix), and the overall number of experiments \(B\).</p>
+<pre><code class="language-r">n &lt;- c(50, 75, 100)
+values &lt;- LETTERS[1:4]
+group.names &lt;- sprintf(&quot;group_%d&quot;, 1:3)
+probs &lt;- matrix(data = c(0.25, 0.25, 0.25, 0.25, 0.4, 0.3, 0.2, 0.1, 0.2, 0.4, 0.2,
+    0.2), nrow = length(n), byrow = T)
+
+
+simdat.chisq.ind &lt;- sim.chisq.ind(n = c(50, 75, 100), values = LETTERS[1:4], probs = probs,
+    num.experiments = 2000, experiment.name = &quot;exp_id&quot;, group.name = &quot;treatment_group&quot;,
+    group.values = sprintf(&quot;group_%d&quot;, 1:3), value.name = &quot;category&quot;, seed = 31)
+
+print(simdat.chisq.ind)
+</code></pre>
+<pre><code>##         exp_id treatment_group category
+##      1:      1         group_1        D
+##      2:      1         group_1        B
+##      3:      1         group_1        B
+##      4:      1         group_1        B
+##      5:      1         group_1        C
+##     ---                                
+## 449996:   2000         group_3        D
+## 449997:   2000         group_3        A
+## 449998:   2000         group_3        A
+## 449999:   2000         group_3        B
+## 450000:   2000         group_3        B
+</code></pre>
+<h5 id="statistical-testing_3" class="tabset">Statistical Testing</h5>
+<p>The <strong>sim.chisq.test.ind</strong> method is used to implement \(\chi^2\) tests of independence (see chisq.test) independently across the \(B\) repeated experiments.  This is testing the observed counts of the categorical values across the levels of the independent variable relative to those expected from a hypothesis of independence between the independent and dependent variables.</p>
+<pre><code class="language-r">test.statistics.chisq.test.ind &lt;- sim.chisq.test.ind(simdat.chisq.ind = simdat.chisq.ind,
+    correct = T, experiment.name = &quot;exp_id&quot;, group.name = &quot;treatment_group&quot;, value.name = &quot;category&quot;)
+
+print(test.statistics.chisq.test.ind)
+</code></pre>
+<pre><code>##       exp_id statistic df      p.value
+##    1:      1  5.307586  6 5.050104e-01
+##    2:      2 26.706805  6 1.643136e-04
+##    3:      3 12.795336  6 4.640364e-02
+##    4:      4 28.470513  6 7.660256e-05
+##    5:      5  7.964288  6 2.407314e-01
+##   ---                                 
+## 1996:   1996  8.374005  6 2.119629e-01
+## 1997:   1997 16.892837  6 9.685260e-03
+## 1998:   1998 13.645147  6 3.386126e-02
+## 1999:   1999 12.854038  6 4.541328e-02
+## 2000:   2000 16.606892  6 1.084191e-02
+</code></pre>
+<h5 id="analyzing-the-simulation-study_3" class="tabset">Analyzing the Simulation Study</h5>
+<p>The <strong>analyze.simstudy.chisq.test.ind</strong> method summarizes the \(B\) \(\chi^2\) tests of independence across the repeated experiments.</p>
+<pre><code class="language-r">analysis.chisq.ind &lt;- analyze.simstudy.chisq.test.ind(test.statistics.chisq.test.ind = test.statistics.chisq.test.ind,
+    conf.level = 0.95, the.quantiles = c(0.025, 0.975))
+
+print(analysis.chisq.ind)
+</code></pre>
+<pre><code>## $stat.summary
+##       q.2.5   q.97.5     mean st.error
+## 1: 6.646683 37.47393 19.64823 8.048949
+## 
+## $p.value.summary
+##    reject.proportion non.reject.proportion
+## 1:             0.806                 0.194
+</code></pre>
+<h5 id="full-simulation-study_3" class="tabset">Full Simulation Study</h5>
+<p>The <strong>simstudy.chisq.test.ind</strong> method is used to a) generate data for experiments with categorical independent and dependent variables, b) implement \(\chi^2\) tests of independence, and c) analyze these tests across the repeated experiments.</p>
+<pre><code class="language-r">study.chisq.ind &lt;- simstudy.chisq.test.ind(n = c(30, 35, 40), values = LETTERS[1:4],
+    probs = probs, num.experiments = 2000, conf.level = 0.95, correct = T, the.quantiles = c(0.025,
+        0.975), experiment.name = &quot;exp_id&quot;, group.name = &quot;treatment_group&quot;, group.values = sprintf(&quot;group_%d&quot;,
+        1:3), value.name = &quot;category&quot;, seed = 77)
+
+print(study.chisq.ind)
+</code></pre>
+<pre><code>## $simdat.chisq.ind
+##         exp_id treatment_group category
+##      1:      1         group_1        C
+##      2:      1         group_1        D
+##      3:      1         group_1        B
+##      4:      1         group_1        D
+##      5:      1         group_1        A
+##     ---                                
+## 209996:   2000         group_3        A
+## 209997:   2000         group_3        D
+## 209998:   2000         group_3        D
+## 209999:   2000         group_3        B
+## 210000:   2000         group_3        B
+## 
+## $test.statistics.chisq.test.ind
+##       exp_id statistic df    p.value
+##    1:      1 16.692964  6 0.01048041
+##    2:      2 11.365260  6 0.07772267
+##    3:      3  8.828703  6 0.18344334
+##    4:      4 11.848328  6 0.06543923
+##    5:      5  8.797762  6 0.18527533
+##   ---                               
+## 1996:   1996  6.811598  6 0.33862260
+## 1997:   1997  8.888580  6 0.17994193
+## 1998:   1998  7.443813  6 0.28174447
+## 1999:   1999  6.565685  6 0.36288386
+## 2000:   2000 15.127593  6 0.01928720
+## 
+## $sim.analysis
+## $sim.analysis$stat.summary
+##       q.2.5   q.97.5     mean st.error
+## 1: 3.547409 26.60943 12.59337 6.036573
+## 
+## $sim.analysis$p.value.summary
+##    reject.proportion non.reject.proportion
+## 1:             0.431                 0.569
+</code></pre>
+<h3 id="multivariate-studies" class="tabset">Multivariate Studies</h3>
+<p>Simulation studies grow more complex in multivariate settings.  Generating multiple variables can require a specification of their distributions and interdependence.  The simitation package aims to simplify the creation of simulated data in multivariate settings.  This is achived through a number of steps:</p>
+<ol>
+<li>
+<p>Specify the variables to generate using symbolic inputs.</p>
+</li>
+<li>
+<p>Allow for dependent relationships in the variables through specifications of regression formulas.</p>
+</li>
+<li>
+<p>Then generate simulated data sets basesd only on the symbolic inputs.</p>
+</li>
+</ol>
+<p>We will discuss this approach in the sections below.</p>
+<h4 id="symbolic-inputs">Symbolic Inputs</h4>
+<p>Using an example of a health and wellness study, we aim to simulate data for a study that aims to model:</p>
+<ul>
+<li>
+<p><strong>Outcome 1:  Healthy Lifestyle</strong>: a binary classification of a subject’s lifestyle.</p>
+</li>
+<li>
+<p><strong>Outcome 2:  Weight</strong>:  A continuous measurement of a subject’s weight.</p>
+</li>
+</ul>
+<p>These outcomes will be modeled in terms of the following covariates:</p>
+<ul>
+<li>Age \(\sim N(45, 10)\);</li>
+<li>Female gender \(\sim \texttt{Bin}(n = 1, p = 0.53)\);</li>
+<li>A continuous health percentile score \(\sim U(0, 100)\);</li>
+<li>The number of exercise sessions per week \(\sim \texttt{Poisson}(\lambda = 2)\)</li>
+<li>A categorical classification of the subject’s diet with \(P(D = \texttt{Light}) = 0.2, P(D = \texttt{Moderate}) = 0.45, P(D = \texttt{Heavy}) = 0.35\).</li>
+</ul>
+<p>Basic functions in R such as rnorm(), sample(), runif(), and rpois() could be used to generate these values.  However, the simitation package allows the specifications to remain symbolic, as seen below:</p>
+<pre><code class="language-r">step.age &lt;- &quot;Age ~ N(45, 10)&quot;
+step.female &lt;- &quot;Female ~ binary(0.53)&quot;
+step.health.percentile &lt;- &quot;Health.Percentile ~ U(0,100)&quot;
+step.exercise.sessions &lt;- &quot;Exercise.Sessions ~ Poisson(2)&quot;
+
+step.diet &lt;- &quot;Diet ~ sample(('Light', 'Moderate', 'Heavy'), (0.2, 0.45, 0.35))&quot;
+</code></pre>
+<p>Then we can create a regression formula as the symbolic representation for the binary <strong>Healthy.Lifestyle</strong> variable:</p>
+<pre><code class="language-r">step.healthy.lifestyle &lt;- &quot;Healthy.Lifestyle ~ logistic(log(0.45) - 0.1 * (Age -45) + 0.05 * Female + 0.01 * Health.Percentile + 0.5 * Exercise.Sessions - 0.1 * (Diet == 'Moderate') - 0.4 * (Diet == 'Heavy'))&quot;
+</code></pre>
+<p>Likewise, we can build a linear regression formula for the Weight outcome:</p>
+<pre><code class="language-r">step.weight &lt;- &quot;Weight ~ lm(150 - 15 * Female + 0.5 * Age - 0.1 * Health.Percentile - 0.2 * Exercise.Sessions  + 5 * (Diet == 'Moderate') + 15 * (Diet == 'Heavy') - 2 * Healthy.Lifestyle + N(0, 10))&quot;
+</code></pre>
+<p>Note that this regression formula includes a specification of the error terms in terms of a distribution, e.g. \(N(0,10)\).</p>
+<p>Finally, we can concatenate these symbolic inputs into a variable <strong>the.steps</strong> that will be used as an input to multivariate simulations.</p>
+<pre><code class="language-r">the.steps &lt;- c(step.age, step.female, step.health.percentile, step.exercise.sessions,
+    step.diet, step.healthy.lifestyle, step.weight)
+
+print(the.steps)
+</code></pre>
+<pre><code>## [1] &quot;Age ~ N(45, 10)&quot;                                                                                                                                                                       
+## [2] &quot;Female ~ binary(0.53)&quot;                                                                                                                                                                 
+## [3] &quot;Health.Percentile ~ U(0,100)&quot;                                                                                                                                                          
+## [4] &quot;Exercise.Sessions ~ Poisson(2)&quot;                                                                                                                                                        
+## [5] &quot;Diet ~ sample(('Light', 'Moderate', 'Heavy'), (0.2, 0.45, 0.35))&quot;                                                                                                                      
+## [6] &quot;Healthy.Lifestyle ~ logistic(log(0.45) - 0.1 * (Age -45) + 0.05 * Female + 0.01 * Health.Percentile + 0.5 * Exercise.Sessions - 0.1 * (Diet == 'Moderate') - 0.4 * (Diet == 'Heavy'))&quot; 
+## [7] &quot;Weight ~ lm(150 - 15 * Female + 0.5 * Age - 0.1 * Health.Percentile - 0.2 * Exercise.Sessions  + 5 * (Diet == 'Moderate') + 15 * (Diet == 'Heavy') - 2 * Healthy.Lifestyle + N(0, 10))&quot;
+</code></pre>
+<h4 id="generating-multivariate-data">Generating Multivariate Data</h4>
+<p>The <strong>simulation.steps</strong> method creates multivariate simulated data based on <strong>the.steps</strong> (specified in the previous section), the sample size \(n\) for a single experiment, and the overall number of experiments \(B\).</p>
+<pre><code class="language-r">simdat.multivariate &lt;- simulation.steps(the.steps = the.steps, n = 50, num.experiments = 2000,
+    experiment.name = &quot;sim&quot;, seed = 41)
+
+print(simdat.multivariate)
+</code></pre>
+<pre><code>##          sim      Age Female Health.Percentile Exercise.Sessions     Diet
+##      1:    1 37.05632   TRUE          29.71407                 1 Moderate
+##      2:    1 44.46198  FALSE          76.89747                 0 Moderate
+##      3:    1 34.63613  FALSE          51.34102                 3    Light
+##      4:    1 48.20881   TRUE          51.50149                 1 Moderate
+##      5:    1 43.42641   TRUE          95.67911                 3    Heavy
+##     ---                                                                  
+##  99996: 2000 50.01564  FALSE          23.67137                 4 Moderate
+##  99997: 2000 36.44738   TRUE          18.06063                 3    Heavy
+##  99998: 2000 42.20966   TRUE          56.94578                 2    Light
+##  99999: 2000 44.44400   TRUE          98.21218                 2    Light
+## 100000: 2000 36.43157   TRUE          70.15200                 0    Heavy
+##         Healthy.Lifestyle   Weight
+##      1:              TRUE 153.6319
+##      2:             FALSE 156.0598
+##      3:              TRUE 151.5775
+##      4:              TRUE 158.0484
+##      5:              TRUE 174.1727
+##     ---                           
+##  99996:              TRUE 174.3380
+##  99997:              TRUE 170.2326
+##  99998:             FALSE 154.7910
+##  99999:              TRUE 128.5885
+## 100000:              TRUE 174.0905
+</code></pre>
+<h4 id="linear-regression_1" class="tabset">Linear Regression</h4>
+<h5 id="modeling_1" class="tabset">Modeling</h5>
+<p>The <strong>sim.statistics.lm</strong> model is used to separately fit linear regression models in each experiment (as specified by the grouping.variables).  This relies upon the simulated multivariate data as well as the intended formula for the linear regression model.</p>
+<pre><code class="language-r">stats.lm &lt;- sim.statistics.lm(simdat = simdat.multivariate, the.formula = Weight ~
+    Age + Female + Health.Percentile + Exercise.Sessions + Healthy.Lifestyle, grouping.variables = &quot;sim&quot;)
+
+print(stats.lm)
+</code></pre>
+<pre><code>## $the.coefs
+##         sim           Coefficient     Estimate  Std. Error    t value
+##     1:    1           (Intercept) 143.41244699 12.02644163 11.9247614
+##     2:    1                   Age   0.69115562  0.24810565  2.7857311
+##     3:    1            FemaleTRUE  -8.47760669  3.56128054 -2.3804939
+##     4:    1     Health.Percentile  -0.18169526  0.05213267 -3.4852473
+##     5:    1     Exercise.Sessions   1.09512438  1.53223089  0.7147254
+##    ---                                                               
+## 11996: 2000                   Age   0.05654876  0.28312228  0.1997327
+## 11997: 2000            FemaleTRUE -12.83816717  4.31336302 -2.9763707
+## 11998: 2000     Health.Percentile  -0.16658583  0.07629281 -2.1835063
+## 11999: 2000     Exercise.Sessions   3.24032954  1.45462179  2.2276096
+## 12000: 2000 Healthy.LifestyleTRUE  -4.61786974  4.95439748 -0.9320749
+##            Pr(&gt;|t|)
+##     1: 2.237792e-15
+##     2: 7.849760e-03
+##     3: 2.168587e-02
+##     4: 1.126164e-03
+##     5: 4.785538e-01
+##    ---             
+## 11996: 8.426099e-01
+## 11997: 4.726254e-03
+## 11998: 3.437501e-02
+## 11999: 3.106828e-02
+## 12000: 3.563843e-01
+## 
+## $summary.stats
+##        sim     sigma df       rse r.squared adj.r.squared fstatistic f.numdf
+##    1:    1 11.143719 44 11.143719 0.4276650     0.3626270   6.575612       5
+##    2:    2 12.470285 44 12.470285 0.4650459     0.4042556   7.650008       5
+##    3:    3 11.142565 44 11.142565 0.3858350     0.3160435   5.528397       5
+##    4:    4 10.508400 44 10.508400 0.5391233     0.4867509  10.294043       5
+##    5:    5  9.069615 44  9.069615 0.7091380     0.6760855  21.454901       5
+##   ---                                                                       
+## 1996: 1996 10.332274 44 10.332274 0.5370773     0.4844724  10.209651       5
+## 1997: 1997 11.833808 44 11.833808 0.4182409     0.3521319   6.326536       5
+## 1998: 1998 11.758757 44 11.758757 0.4288661     0.3639645   6.607945       5
+## 1999: 1999 10.416190 44 10.416190 0.5447162     0.4929794  10.528603       5
+## 2000: 2000 14.041371 44 14.041371 0.3798946     0.3094281   5.391136       5
+##       f.dendf     f.pvalue
+##    1:      44 1.197250e-04
+##    2:      44 3.035780e-05
+##    3:      44 4.920593e-04
+##    4:      44 1.400543e-06
+##    5:      44 8.216837e-11
+##   ---                     
+## 1996:      44 1.535810e-06
+## 1997:      44 1.664007e-04
+## 1998:      44 1.147523e-04
+## 1999:      44 1.086012e-06
+## 2000:      44 5.956363e-04
+</code></pre>
+<h5 id="analyzing-the-simulation-study_4" class="tabset">Analyzing the Simulation Study</h5>
+<p>The <strong>analyze.simstudy.lm</strong> summarizes the \(B\) linear regression models across the repeated experiments.</p>
+<pre><code class="language-r">analysis.lm &lt;- analyze.simstudy.lm(the.coefs = stats.lm$the.coefs, summary.stats = stats.lm$summary.stats,
+    conf.level = 0.95, the.quantiles = c(0.25, 0.75), coef.name = &quot;Coefficient&quot;,
+    estimate.name = &quot;Estimate&quot;, lm.p.name = &quot;Pr(&gt;|t|)&quot;, f.p.name = &quot;f.pvalue&quot;)
+print(analysis.lm)
+</code></pre>
+<pre><code>## $lm.estimate.summary
+##              Coefficient        q.25         q.75         mean    st.error
+## 1:           (Intercept) 151.5068859 165.33470637 158.43416265 10.46546190
+## 2:                   Age   0.3455159   0.61848162   0.48300680  0.19722956
+## 3:            FemaleTRUE -17.1688096 -12.54728544 -14.90209299  3.48346863
+## 4:     Health.Percentile  -0.1381232  -0.05769657  -0.09753103  0.05975137
+## 5:     Exercise.Sessions  -0.9913888   0.74392705  -0.10991843  1.29124842
+## 6: Healthy.LifestyleTRUE  -5.5838909  -0.19630860  -2.86531869  4.04913916
+## 
+## $lm.p.summary
+##              Coefficient reject.proportion non.reject.proportion
+## 1:           (Intercept)            1.0000                0.0000
+## 2:                   Age            0.6840                0.3160
+## 3:            FemaleTRUE            0.9885                0.0115
+## 4:     Health.Percentile            0.3455                0.6545
+## 5:     Exercise.Sessions            0.0485                0.9515
+## 6: Healthy.LifestyleTRUE            0.1155                0.8845
+## 
+## $lm.stats.summary
+##             stat       q.25       q.75       mean   st.error
+## 1:         sigma 10.6873045 12.3143905 11.5124512 1.22594777
+## 2:           rse 10.6873045 12.3143905 11.5124512 1.22594777
+## 3:     r.squared  0.3976626  0.5388679  0.4655912 0.09954937
+## 4: adj.r.squared  0.3292152  0.4864665  0.4048630 0.11086180
+## 5:    fstatistic  5.8097521 10.2834676  8.2803198 3.41380832
+## 
+## $fstatistic.p.summary
+##    reject.proportion non.reject.proportion
+## 1:             0.991                 0.009
+</code></pre>
+<h5 id="full-simulation-study_4" class="tabset">Full Simulation Study</h5>
+<p>The <strong>simstudy.lm</strong> method is used to a) generate multivariate data for experiments, b) implement linear regression models, and c) analyze these models across the repeated experiments.</p>
+<pre><code class="language-r">study.lm &lt;- simstudy.lm(the.steps = the.steps, n = 100, num.experiments = 2000, the.formula = Weight ~
+    Age + Female + Health.Percentile + Exercise.Sessions + Healthy.Lifestyle, conf.level = 0.95,
+    the.quantiles = c(0.25, 0.75), experiment.name = &quot;sim&quot;, seed = 11)
+
+print(study.lm)
+</code></pre>
+<pre><code>## $the.steps
+## [1] &quot;Age ~ N(45, 10)&quot;                                                                                                                                                                       
+## [2] &quot;Female ~ binary(0.53)&quot;                                                                                                                                                                 
+## [3] &quot;Health.Percentile ~ U(0,100)&quot;                                                                                                                                                          
+## [4] &quot;Exercise.Sessions ~ Poisson(2)&quot;                                                                                                                                                        
+## [5] &quot;Diet ~ sample(('Light', 'Moderate', 'Heavy'), (0.2, 0.45, 0.35))&quot;                                                                                                                      
+## [6] &quot;Healthy.Lifestyle ~ logistic(log(0.45) - 0.1 * (Age -45) + 0.05 * Female + 0.01 * Health.Percentile + 0.5 * Exercise.Sessions - 0.1 * (Diet == 'Moderate') - 0.4 * (Diet == 'Heavy'))&quot; 
+## [7] &quot;Weight ~ lm(150 - 15 * Female + 0.5 * Age - 0.1 * Health.Percentile - 0.2 * Exercise.Sessions  + 5 * (Diet == 'Moderate') + 15 * (Diet == 'Heavy') - 2 * Healthy.Lifestyle + N(0, 10))&quot;
+## 
+## $simdat
+##          sim      Age Female Health.Percentile Exercise.Sessions     Diet
+##      1:    1 39.08969  FALSE          74.49755                 2    Light
+##      2:    1 46.50081   TRUE          98.57778                 4 Moderate
+##      3:    1 53.66492   TRUE          12.05114                 5    Heavy
+##      4:    1 43.58467   TRUE          97.88096                 3    Light
+##      5:    1 28.43229   TRUE          67.85286                 0    Heavy
+##     ---                                                                  
+## 199996: 2000 19.37264  FALSE          26.48270                 2    Heavy
+## 199997: 2000 49.38716   TRUE          57.24480                 0    Heavy
+## 199998: 2000 37.58661   TRUE          84.77410                 3    Light
+## 199999: 2000 48.46724  FALSE          27.32050                 3 Moderate
+## 200000: 2000 48.92280   TRUE          27.51480                 1    Heavy
+##         Healthy.Lifestyle   Weight
+##      1:              TRUE 166.2727
+##      2:              TRUE 167.0829
+##      3:              TRUE 172.8174
+##      4:              TRUE 133.3357
+##      5:             FALSE 155.2499
+##     ---                           
+## 199996:              TRUE 167.6353
+## 199997:             FALSE 171.4798
+## 199998:              TRUE 130.6448
+## 199999:              TRUE 167.5629
+## 200000:              TRUE 172.3558
+## 
+## $statistics
+## $statistics$the.coefs
+##         sim           Coefficient     Estimate Std. Error     t value
+##     1:    1           (Intercept) 156.35192591 7.54424520 20.72466122
+##     2:    1                   Age   0.46370604 0.14074535  3.29464565
+##     3:    1            FemaleTRUE -13.50742857 2.32305161 -5.81451936
+##     4:    1     Health.Percentile  -0.11561014 0.03864230 -2.99180295
+##     5:    1     Exercise.Sessions  -0.02755147 0.95516858 -0.02884462
+##    ---                                                               
+## 11996: 2000                   Age   0.47335644 0.11591227  4.08374763
+## 11997: 2000            FemaleTRUE -15.83360573 2.19748554 -7.20532875
+## 11998: 2000     Health.Percentile  -0.06802191 0.03570605 -1.90505272
+## 11999: 2000     Exercise.Sessions  -1.02835128 0.95862934 -1.07273087
+## 12000: 2000 Healthy.LifestyleTRUE  -2.17698768 2.49814368 -0.87144214
+##            Pr(&gt;|t|)
+##     1: 8.010977e-37
+##     2: 1.390472e-03
+##     3: 8.315250e-08
+##     4: 3.541780e-03
+##     5: 9.770497e-01
+##    ---             
+## 11996: 9.309291e-05
+## 11997: 1.428372e-10
+## 11998: 5.983010e-02
+## 11999: 2.861382e-01
+## 12000: 3.857331e-01
+## 
+## $statistics$summary.stats
+##        sim    sigma df      rse r.squared adj.r.squared fstatistic f.numdf
+##    1:    1 11.51544 94 11.51544 0.3581783     0.3240388  10.491624       5
+##    2:    2 10.86909 94 10.86909 0.6087671     0.5879568  29.253213       5
+##    3:    3 10.23716 94 10.23716 0.3830009     0.3501818  11.670062       5
+##    4:    4 11.83674 94 11.83674 0.4322802     0.4020823  14.314925       5
+##    5:    5 11.29339 94 11.29339 0.5794029     0.5570307  25.898359       5
+##   ---                                                                     
+## 1996: 1996 11.25075 94 11.25075 0.4970658     0.4703140  18.580639       5
+## 1997: 1997 12.50857 94 12.50857 0.2661006     0.2270634   6.816591       5
+## 1998: 1998 12.32557 94 12.32557 0.3624283     0.3285149  10.686880       5
+## 1999: 1999 12.54309 94 12.54309 0.4168465     0.3858277  13.438508       5
+## 2000: 2000 10.46022 94 10.46022 0.4398125     0.4100153  14.760190       5
+##       f.dendf     f.pvalue
+##    1:      94 5.073379e-08
+##    2:      94 8.539413e-18
+##    3:      94 8.738455e-09
+##    4:      94 2.076056e-10
+##    5:      94 2.385578e-16
+##   ---                     
+## 1996:      94 8.528932e-13
+## 1997:      94 1.823595e-05
+## 1998:      94 3.775146e-08
+## 1999:      94 6.953370e-10
+## 2000:      94 1.135880e-10
+## 
+## 
+## $sim.analysis
+## $sim.analysis$lm.estimate.summary
+##              Coefficient        q.25         q.75         mean   st.error
+## 1:           (Intercept) 153.8055564 163.28857287 158.59064763 7.00464638
+## 2:                   Age   0.3950494   0.56843278   0.48232587 0.13047951
+## 3:            FemaleTRUE -16.4975226 -13.48388116 -14.99592332 2.35117629
+## 4:     Health.Percentile  -0.1260884  -0.06945318  -0.09769115 0.04188296
+## 5:     Exercise.Sessions  -0.7333715   0.42029077  -0.14193699 0.86623729
+## 6: Healthy.LifestyleTRUE  -4.7566724  -1.10116880  -2.93533317 2.75277017
+## 
+## $sim.analysis$lm.p.summary
+##              Coefficient reject.proportion non.reject.proportion
+## 1:           (Intercept)            1.0000                0.0000
+## 2:                   Age            0.9520                0.0480
+## 3:            FemaleTRUE            1.0000                0.0000
+## 4:     Health.Percentile            0.6375                0.3625
+## 5:     Exercise.Sessions            0.0495                0.9505
+## 6: Healthy.LifestyleTRUE            0.1830                0.8170
+## 
+## $sim.analysis$lm.stats.summary
+##             stat       q.25       q.75       mean   st.error
+## 1:         sigma 10.9924961 12.1214639 11.5614994 0.82715969
+## 2:           rse 10.9924961 12.1214639 11.5614994 0.82715969
+## 3:     r.squared  0.3953620  0.4889834  0.4412176 0.07059451
+## 4: adj.r.squared  0.3632004  0.4618016  0.4114951 0.07434954
+## 5:    fstatistic 12.2929844 17.9894098 15.4042828 4.50505328
+## 
+## $sim.analysis$fstatistic.p.summary
+##    reject.proportion non.reject.proportion
+## 1:                 1                     0
+</code></pre>
+<h4 id="logistic-regression_1" class="tabset">Logistic Regression</h4>
+<h5 id="modeling_2" class="tabset">Modeling</h5>
+<p>The <strong>sim.statistics.logistic</strong> model is used to separately fit logistic regression models in each experiment (as specified by the grouping.variables).  This relies upon the simulated multivariate data as well as the intended formula for the logistic regression model.</p>
+<pre><code class="language-r">stats.logistic &lt;- sim.statistics.logistic(simdat = simdat.multivariate, the.formula = Healthy.Lifestyle ~
+    Age + Female + Health.Percentile + Exercise.Sessions, grouping.variables = &quot;sim&quot;)
+</code></pre>
+<pre><code>## Warning: glm.fit: fitted probabilities numerically 0 or 1 occurred
+</code></pre>
+<pre><code>## Warning: glm.fit: algorithm did not converge
+</code></pre>
+<pre><code>## Warning: glm.fit: fitted probabilities numerically 0 or 1 occurred
+
+## Warning: glm.fit: fitted probabilities numerically 0 or 1 occurred
+</code></pre>
+<pre><code>## Warning: glm.fit: algorithm did not converge
+</code></pre>
+<pre><code>## Warning: glm.fit: fitted probabilities numerically 0 or 1 occurred
+</code></pre>
+<pre><code class="language-r">print(stats.logistic)
+</code></pre>
+<pre><code>## $the.coefs
+##         sim       Coefficient     Estimate Std. Error    z value    Pr(&gt;|z|)
+##     1:    1       (Intercept)  8.570872490 3.18678409  2.6895052 0.007155803
+##     2:    1               Age -0.251002813 0.08000813 -3.1372163 0.001705603
+##     3:    1        FemaleTRUE  2.221545300 1.09352041  2.0315536 0.042198871
+##     4:    1 Health.Percentile  0.004706005 0.01461277  0.3220475 0.747416721
+##     5:    1 Exercise.Sessions  1.317739277 0.51665679  2.5505119 0.010756486
+##    ---                                                                      
+##  9996: 2000       (Intercept)  7.767045588 3.07772650  2.5236309 0.011614982
+##  9997: 2000               Age -0.242044880 0.08040886 -3.0101765 0.002610959
+##  9998: 2000        FemaleTRUE  0.312734358 0.93500249  0.3344744 0.738021637
+##  9999: 2000 Health.Percentile  0.020461665 0.01450923  1.4102517 0.158465370
+## 10000: 2000 Exercise.Sessions  0.958409635 0.40248878  2.3812084 0.017255949
+## 
+## $summary.stats
+##        sim deviance      aic df.residual null.deviance df.null iter dispersion
+##    1:    1 34.83327 44.83327          45      62.68695      49    6          1
+##    2:    2 40.12408 50.12408          45      65.34182      49    5          1
+##    3:    3 51.58797 61.58797          45      66.40641      49    4          1
+##    4:    4 58.74795 68.74795          45      69.23470      49    3          1
+##    5:    5 44.90752 54.90752          45      67.30117      49    5          1
+##   ---                                                                         
+## 1996: 1996 57.01894 67.01894          45      69.23470      49    4          1
+## 1997: 1997 52.59694 62.59694          45      69.23470      49    5          1
+## 1998: 1998 56.74188 66.74188          45      68.99438      49    4          1
+## 1999: 1999 51.08389 61.08389          45      68.02920      49    5          1
+## 2000: 2000 44.20892 54.20892          45      69.23470      49    6          1
+</code></pre>
+<h5 id="analyzing-the-simulation-study_5" class="tabset">Analyzing the Simulation Study</h5>
+<p>The <strong>analyze.simstudy.logistic</strong> summarizes the \(B\) logistic regression models across the repeated experiments.</p>
+<pre><code class="language-r">analysis.logistic &lt;- analyze.simstudy.logistic(the.coefs = stats.logistic$the.coefs,
+    summary.stats = stats.logistic$summary.stats, conf.level = 0.95, the.quantiles = c(0.1,
+        0.9))
+
+print(analysis.logistic)
+</code></pre>
+<pre><code>## $logistic.estimate.summary
+##          Coefficient         q.10        q.90        mean    st.error
+## 1:       (Intercept)  1.325120118  7.36873943  4.96610051 33.75119988
+## 2:               Age -0.189809359 -0.05993065 -0.14617820  1.12595874
+## 3:        FemaleTRUE -0.994708171  1.09472858  0.02736958  1.64590583
+## 4: Health.Percentile -0.005779916  0.03077342  0.01402565  0.09100922
+## 5: Exercise.Sessions  0.199163400  1.06745005  0.80315298  8.03293308
+## 
+## $logistic.p.summary
+##          Coefficient reject.proportion non.reject.proportion
+## 1:       (Intercept)            0.4515                0.5485
+## 2:               Age            0.7950                0.2050
+## 3:        FemaleTRUE            0.0560                0.9440
+## 4: Health.Percentile            0.1430                0.8570
+## 5: Exercise.Sessions            0.5045                0.4955
+## 
+## $logistic.stats.summary
+##             stat     q.10     q.90     mean  st.error
+## 1:      deviance 39.48138 58.20652 49.12613 7.5046829
+## 2:           aic 49.48138 68.20652 59.12613 7.5046829
+## 3:   df.residual 45.00000 45.00000 45.00000 0.0000000
+## 4: null.deviance 61.08643 69.23470 66.20739 3.2487290
+## 5:       df.null 49.00000 49.00000 49.00000 0.0000000
+## 6:          iter  4.00000  6.00000  4.76800 0.8958668
+## 7:    dispersion  1.00000  1.00000  1.00000 0.0000000
+</code></pre>
+<h5 id="full-simulation-study_5" class="tabset">Full Simulation Study</h5>
+<p>The <strong>simstudy.logistic</strong> method is used to a) generate multivariate data for experiments, b) implement logistic regression models, and c) analyze these models across the repeated experiments.</p>
+<pre><code class="language-r">study.logistic &lt;- simstudy.logistic(the.steps = the.steps, n = 100, num.experiments = 2000,
+    the.formula = Healthy.Lifestyle ~ Age + Female + Health.Percentile + Exercise.Sessions,
+    conf.level = 0.95, the.quantiles = c(0.025, 0.1, 0.5, 0.9, 0.975), experiment.name = &quot;sim&quot;,
+    seed = 222)
+
+print(study.logistic)
+</code></pre>
+<pre><code>## $the.steps
+## [1] &quot;Age ~ N(45, 10)&quot;                                                                                                                                                                       
+## [2] &quot;Female ~ binary(0.53)&quot;                                                                                                                                                                 
+## [3] &quot;Health.Percentile ~ U(0,100)&quot;                                                                                                                                                          
+## [4] &quot;Exercise.Sessions ~ Poisson(2)&quot;                                                                                                                                                        
+## [5] &quot;Diet ~ sample(('Light', 'Moderate', 'Heavy'), (0.2, 0.45, 0.35))&quot;                                                                                                                      
+## [6] &quot;Healthy.Lifestyle ~ logistic(log(0.45) - 0.1 * (Age -45) + 0.05 * Female + 0.01 * Health.Percentile + 0.5 * Exercise.Sessions - 0.1 * (Diet == 'Moderate') - 0.4 * (Diet == 'Heavy'))&quot; 
+## [7] &quot;Weight ~ lm(150 - 15 * Female + 0.5 * Age - 0.1 * Health.Percentile - 0.2 * Exercise.Sessions  + 5 * (Diet == 'Moderate') + 15 * (Diet == 'Heavy') - 2 * Healthy.Lifestyle + N(0, 10))&quot;
+## 
+## $simdat
+##          sim      Age Female Health.Percentile Exercise.Sessions     Diet
+##      1:    1 59.87757   TRUE        53.2428192                 2    Heavy
+##      2:    1 48.74060   TRUE        21.1235821                 2 Moderate
+##      3:    1 43.40462   TRUE        89.7428594                 1    Heavy
+##      4:    1 24.27340  FALSE        78.9232109                 2 Moderate
+##      5:    1 40.92160   TRUE        40.9784437                 2 Moderate
+##     ---                                                                  
+## 199996: 2000 44.08748  FALSE         0.8803819                 1    Heavy
+## 199997: 2000 49.89825  FALSE        66.3038554                 1    Heavy
+## 199998: 2000 34.60809  FALSE        97.7703888                 9 Moderate
+## 199999: 2000 42.53373  FALSE        34.2455237                 1 Moderate
+## 200000: 2000 51.71965   TRUE        57.2398308                 7    Light
+##         Healthy.Lifestyle   Weight
+##      1:              TRUE 167.7444
+##      2:              TRUE 172.1692
+##      3:             FALSE 152.2713
+##      4:              TRUE 166.4884
+##      5:              TRUE 154.0843
+##     ---                           
+## 199996:             FALSE 208.5940
+## 199997:             FALSE 162.0506
+## 199998:              TRUE 163.7009
+## 199999:             FALSE 176.3599
+## 200000:             FALSE 149.6969
+## 
+## $statistics
+## $statistics$the.coefs
+##         sim       Coefficient     Estimate  Std. Error    z value     Pr(&gt;|z|)
+##     1:    1       (Intercept)  2.285946652 1.229073604  1.8598940 0.0629005209
+##     2:    1               Age -0.061184650 0.022883910 -2.6736974 0.0075020119
+##     3:    1        FemaleTRUE  0.662604161 0.453119465  1.4623167 0.1436544440
+##     4:    1 Health.Percentile  0.005978490 0.007771018  0.7693317 0.4416964078
+##     5:    1 Exercise.Sessions  0.185667303 0.157993205  1.1751601 0.2399306874
+##    ---                                                                        
+##  9996: 2000       (Intercept)  4.349599655 1.469778307  2.9593576 0.0030828110
+##  9997: 2000               Age -0.106013657 0.028717101 -3.6916560 0.0002227987
+##  9998: 2000        FemaleTRUE  0.213843598 0.464045088  0.4608250 0.6449241329
+##  9999: 2000 Health.Percentile  0.006218133 0.008566194  0.7258922 0.4679048673
+## 10000: 2000 Exercise.Sessions  0.208224291 0.160878118  1.2942984 0.1955623684
+## 
+## $statistics$summary.stats
+##        sim  deviance      aic df.residual null.deviance df.null iter dispersion
+##    1:    1 117.09183 127.0918          95      130.6836      99    4          1
+##    2:    2  93.51307 103.5131          95      137.9888      99    5          1
+##    3:    3 106.91722 116.9172          95      132.8128      99    4          1
+##    4:    4  91.68049 101.6805          95      134.6023      99    5          1
+##    5:    5 103.12119 113.1212          95      133.7496      99    4          1
+##   ---                                                                          
+## 1996: 1996 113.31108 123.3111          95      136.0584      99    4          1
+## 1997: 1997  92.48790 102.4879          95      131.7911      99    5          1
+## 1998: 1998  98.27400 108.2740          95      136.0584      99    5          1
+## 1999: 1999 106.46465 116.4646          95      131.7911      99    4          1
+## 2000: 2000 113.32667 123.3267          95      135.3717      99    4          1
+## 
+## 
+## $sim.analysis
+## $sim.analysis$logistic.estimate.summary
+##          Coefficient        q.2.5          q.10        q.50        q.90
+## 1:       (Intercept)  1.022134461  1.9366636009  3.68466173  5.73934700
+## 2:               Age -0.174310418 -0.1493509481 -0.10465432 -0.06911418
+## 3:        FemaleTRUE -1.005002023 -0.5980217453  0.06354152  0.68079738
+## 4: Health.Percentile -0.006602118 -0.0006587377  0.01011092  0.02208901
+## 5: Exercise.Sessions  0.166758003  0.2916224153  0.53118976  0.81325366
+##         q.97.5        mean    st.error
+## 1:  7.20331742  3.77560592 1.534385977
+## 2: -0.05310227 -0.10729112 0.031556005
+## 3:  1.07653035  0.04598816 0.507826776
+## 4:  0.02801667  0.01039520 0.008932604
+## 5:  0.99250538  0.54517771 0.208341093
+## 
+## $sim.analysis$logistic.p.summary
+##          Coefficient reject.proportion non.reject.proportion
+## 1:       (Intercept)            0.7745                0.2255
+## 2:               Age            0.9835                0.0165
+## 3:        FemaleTRUE            0.0555                0.9445
+## 4: Health.Percentile            0.2075                0.7925
+## 5: Exercise.Sessions            0.8185                0.1815
+## 
+## $sim.analysis$logistic.stats.summary
+##             stat     q.2.5      q.10     q.50     q.90   q.97.5     mean
+## 1:      deviance  83.72335  92.14815 105.2289 116.2879 121.4046 104.6476
+## 2:           aic  93.72335 102.14815 115.2289 126.2879 131.4046 114.6476
+## 3:   df.residual  95.00000  95.00000  95.0000  95.0000  95.0000  95.0000
+## 4: null.deviance 122.17286 128.20710 134.6023 137.9888 138.5894 133.5637
+## 5:       df.null  99.00000  99.00000  99.0000  99.0000  99.0000  99.0000
+## 6:          iter   3.00000   4.00000   4.0000   5.0000   5.0000   4.4290
+## 7:    dispersion   1.00000   1.00000   1.0000   1.0000   1.0000   1.0000
+##     st.error
+## 1: 9.6689714
+## 2: 9.6689714
+## 3: 0.0000000
+## 4: 4.2571340
+## 5: 0.0000000
+## 6: 0.5823475
+## 7: 0.0000000
+</code></pre>
+<h2 id="applications" class="tabset">Applications</h2>
+<p>Simulation studies can be used to investigate or substantiate many qualities of a planned study.  In this section, we will illustrate some of the applications of the earlier results.</p>
+<h3 id="range-of-estimates-and-test-statistics" class="tabset">Range of Estimates and Test Statistics</h3>
+<h4 id="one-sample-t-test_1" class="tabset">One-Sample \(t\) Test</h4>
+<h5 id="estimates_1">Estimates</h5>
+<pre><code class="language-r">study.t &lt;- simstudy.t(n = 25, mean = 0.3, sd = 1, num.experiments = 2000, alternative = &quot;greater&quot;,
+    mu = 0, conf.level = 0.95, the.quantiles = c(0.025, 0.975), experiment.name = &quot;experiment&quot;,
+    value.name = &quot;x&quot;, seed = 817)
+print(study.t)
+</code></pre>
+<pre><code>## $simdat.t
+##        experiment          x
+##     1:          1  1.0668056
+##     2:          1 -0.6146314
+##     3:          1 -0.4373689
+##     4:          1  0.3528564
+##     5:          1  0.8214256
+##    ---                      
+## 49996:       2000 -1.9832003
+## 49997:       2000  2.0778384
+## 49998:       2000  0.9263137
+## 49999:       2000  1.5917713
+## 50000:       2000  2.0528758
+## 
+## $test.statistics.t
+##       experiment  statistic df     p.value    lower.ci upper.ci    estimate
+##    1:          1  1.3583148 24 0.093498018 -0.06851698      Inf  0.26397123
+##    2:          2 -0.1881835 24 0.573842530 -0.36901378      Inf -0.03656656
+##    3:          3  0.5158334 24 0.305345272 -0.20995274      Inf  0.09062445
+##    4:          4  1.3301625 24 0.097983811 -0.06490505      Inf  0.22676605
+##    5:          5  2.8754202 24 0.004163486  0.22032277      Inf  0.54401014
+##   ---                                                                      
+## 1996:       1996  2.4060883 24 0.012092597  0.12504056      Inf  0.43276171
+## 1997:       1997 -0.0905527 24 0.535700234 -0.31350069      Inf -0.01575874
+## 1998:       1998 -0.1703523 24 0.566919482 -0.37240923      Inf -0.03372294
+## 1999:       1999  0.3658412 24 0.358844273 -0.18927582      Inf  0.05148162
+## 2000:       2000  2.1611001 24 0.020442317  0.09949100      Inf  0.47756865
+##       null.value alternative            method
+##    1:          0     greater One Sample t-test
+##    2:          0     greater One Sample t-test
+##    3:          0     greater One Sample t-test
+##    4:          0     greater One Sample t-test
+##    5:          0     greater One Sample t-test
+##   ---                                         
+## 1996:          0     greater One Sample t-test
+## 1997:          0     greater One Sample t-test
+## 1998:          0     greater One Sample t-test
+## 1999:          0     greater One Sample t-test
+## 2000:          0     greater One Sample t-test
+## 
+## $sim.analysis.t
+## $sim.analysis.t$estimate.summary
+##         q.2.5    q.97.5      mean  st.error
+## 1: -0.1003992 0.6894601 0.2987991 0.1995733
+## 
+## $sim.analysis.t$stat.summary
+##         q.2.5   q.97.5     mean st.error
+## 1: -0.4910528 3.739643 1.538052 1.061821
+## 
+## $sim.analysis.t$p.value.summary
+##   reject.proportion non.reject.proportion
+## 1             0.426                 0.574
+## 
+## $sim.analysis.t$ci.limit.summary
+##        q.2.5    q.97.5        mean  st.error
+## 1: -0.451764 0.3668702 -0.04020412 0.2049304
+</code></pre>
+<p>This demonstrates the selected quantiles, mean, and standard error for the estimated mean of the one-sample \(t\) test based upon the \(B\) experiments conducted in the simulation study.</p>
+<pre><code class="language-r">print(study.t$sim.analysis.t$estimate.summary)
+</code></pre>
+<pre><code>##         q.2.5    q.97.5      mean  st.error
+## 1: -0.1003992 0.6894601 0.2987991 0.1995733
+</code></pre>
+<h5 id="test-statistics_1">Test Statistics</h5>
+<p>This demonstrates the selected quantiles, mean, and standard error for the test statistics of the one-sample \(t\) test based upon the \(B\) experiments conducted in the simulation study.</p>
+<pre><code class="language-r">print(study.t$sim.analysis.t$stat.summary)
+</code></pre>
+<pre><code>##         q.2.5   q.97.5     mean st.error
+## 1: -0.4910528 3.739643 1.538052 1.061821
+</code></pre>
+<h4 id="two-sample-t-test_1" class="tabset">Two-Sample \(t\) Test</h4>
+<h5 id="estimates_2">Estimates</h5>
+<pre><code class="language-r">study.t2 &lt;- simstudy.t2(nx = 30, ny = 40, meanx = 0, meany = 0.2, sdx = 1, sdy = 1,
+    num.experiments = 2000, alternative = &quot;less&quot;, mu = 0, conf.level = 0.9, the.quantiles = c(0.1,
+        0.5, 0.9), experiment.name = &quot;experiment_id&quot;, group.name = &quot;category&quot;, x.value = &quot;a&quot;,
+    y.value = &quot;b&quot;, value.name = &quot;measurement&quot;, seed = 41)
+print(study.t2)
+</code></pre>
+<pre><code>## $simdat.t2
+##         experiment_id category measurement
+##      1:             1        a -0.79436834
+##      2:             1        a -0.05380187
+##      3:             1        a -1.03638729
+##      4:             1        a  0.32088088
+##      5:             1        a -0.15735895
+##     ---                                   
+## 139996:          2000        b -1.24812965
+## 139997:          2000        b  1.01921469
+## 139998:          2000        b  1.92539513
+## 139999:          2000        b  0.43106238
+## 140000:          2000        b  0.39878221
+## 
+## $test.statistics.t2
+##       experiment_id  statistic       df     p.value lower.ci     upper.ci
+##    1:             1 -2.4406805 66.79080 0.008659102     -Inf -0.240911381
+##    2:             2 -0.5966090 50.20063 0.276724805     -Inf  0.166058545
+##    3:             3 -2.0641443 67.73438 0.021418533     -Inf -0.166332119
+##    4:             4 -1.1731405 66.66282 0.122457116     -Inf  0.036474751
+##    5:             5 -1.9871163 65.72674 0.025539963     -Inf -0.159738152
+##   ---                                                                    
+## 1996:          1996 -1.4066423 51.86134 0.082748915     -Inf -0.028622042
+## 1997:          1997 -1.2632246 67.76179 0.105418846     -Inf  0.006960161
+## 1998:          1998 -1.2048580 60.53539 0.116473685     -Inf  0.021924034
+## 1999:          1999  0.5838079 52.11040 0.719065871     -Inf  0.441892144
+## 2000:          2000 -0.3548475 59.68726 0.361977295     -Inf  0.206616067
+##          estimate  x.estimate  y.estimate null.value alternative
+##    1: -0.51293286 -0.31924839  0.19368447          0        less
+##    2: -0.14112115 -0.20991200 -0.06879084          0        less
+##    3: -0.44590567 -0.12689675  0.31900892          0        less
+##    4: -0.35293676  0.09945739  0.45239415          0        less
+##    5: -0.45833178 -0.08318576  0.37514602          0        less
+##   ---                                                           
+## 1996: -0.37088896  0.08419039  0.45507935          0        less
+## 1997: -0.28411916 -0.05211736  0.23200180          0        less
+## 1998: -0.29080441  0.02080981  0.31161422          0        less
+## 1999:  0.13709093  0.10303569 -0.03405524          0        less
+## 2000: -0.07791007  0.08914319  0.16705325          0        less
+##                        method
+##    1: Welch Two Sample t-test
+##    2: Welch Two Sample t-test
+##    3: Welch Two Sample t-test
+##    4: Welch Two Sample t-test
+##    5: Welch Two Sample t-test
+##   ---                        
+## 1996: Welch Two Sample t-test
+## 1997: Welch Two Sample t-test
+## 1998: Welch Two Sample t-test
+## 1999: Welch Two Sample t-test
+## 2000: Welch Two Sample t-test
+## 
+## $sim.analysis.t2
+## $sim.analysis.t2$estimate.summary
+##          q.10       q.50       q.90       mean  st.error
+## 1: -0.4995356 -0.2004179 0.09904178 -0.1983179 0.2413597
+## 
+## $sim.analysis.t2$stat.summary
+##         q.10      q.50      q.90       mean st.error
+## 1: -2.072232 -0.848695 0.4213835 -0.8301772 1.019355
+## 
+## $sim.analysis.t2$df.summary
+##        q.10     q.50    q.90     mean st.error
+## 1: 54.78029 62.84369 67.5426 61.79574 5.090286
+## 
+## $sim.analysis.t2$p.value.summary
+##   reject.proportion non.reject.proportion
+## 1             0.317                 0.683
+## 
+## $sim.analysis.t2$ci.limit.summary
+##          q.10      q.50     q.90      mean  st.error
+## 1: -0.1842525 0.1102616 0.416871 0.1126389 0.2419847
+</code></pre>
+<p>This demonstrates the selected quantiles, mean, and standard error for the estimated difference in means of the two-sample \(t\) test based upon the \(B\) experiments conducted in the simulation study.</p>
+<pre><code class="language-r">print(study.t2$sim.analysis.t2$estimate.summary)
+</code></pre>
+<pre><code>##          q.10       q.50       q.90       mean  st.error
+## 1: -0.4995356 -0.2004179 0.09904178 -0.1983179 0.2413597
+</code></pre>
+<h5 id="test-statistics_2">Test Statistics</h5>
+<p>This demonstrates the selected quantiles, mean, and standard error for the test statistics of the two-sample \(t\) test based upon the \(B\) experiments conducted in the simulation study.</p>
+<pre><code class="language-r">print(study.t2$sim.analysis.t2$stat.summary)
+</code></pre>
+<pre><code>##         q.10      q.50      q.90       mean st.error
+## 1: -2.072232 -0.848695 0.4213835 -0.8301772 1.019355
+</code></pre>
+<h4 id="one-sample-proportions-test_1" class="tabset">One Sample Proportions Test</h4>
+<h5 id="estimates_3">Estimates</h5>
+<pre><code class="language-r">study.prop &lt;- simstudy.prop(n = 30, p.actual = 0.42, p.hypothesized = 0.5, num.experiments = 2000,
+    alternative = &quot;less&quot;, conf.level = 0.92, correct = T, the.quantiles = c(0.04,
+        0.5, 0.96), experiment.name = &quot;simulation_id&quot;, value.name = &quot;success&quot;, seed = 8001)
+print(study.prop)
+</code></pre>
+<pre><code>## $simdat.prop
+##        simulation_id success
+##     1:             1       1
+##     2:             1       0
+##     3:             1       1
+##     4:             1       1
+##     5:             1       1
+##    ---                      
+## 59996:          2000       0
+## 59997:          2000       0
+## 59998:          2000       0
+## 59999:          2000       0
+## 60000:          2000       1
+## 
+## $test.statistics.prop
+##       simulation_id  statistic df     p.value lower.ci  upper.ci  estimate
+##    1:             1 0.30000000  1 0.291941210        0 0.5767450 0.4333333
+##    2:             2 4.03333333  1 0.022304859        0 0.4441283 0.3000000
+##    3:             3 0.03333333  1 0.427566070        0 0.6085396 0.4666667
+##    4:             4 1.63333333  1 0.100621310        0 0.5115639 0.3666667
+##    5:             5 0.00000000  1 0.500000000        0 0.6242420 0.5000000
+##   ---                                                                     
+## 1996:          1996 0.30000000  1 0.291941210        0 0.5767450 0.4333333
+## 1997:          1997 1.63333333  1 0.100621310        0 0.5115639 0.3666667
+## 1998:          1998 4.03333333  1 0.022304859        0 0.4441283 0.3000000
+## 1999:          1999 0.03333333  1 0.427566070        0 0.6085396 0.4666667
+## 2000:          2000 5.63333333  1 0.008811045        0 0.4094787 0.2666667
+##       null.value alternative
+##    1:        0.5        less
+##    2:        0.5        less
+##    3:        0.5        less
+##    4:        0.5        less
+##    5:        0.5        less
+##   ---                       
+## 1996:        0.5        less
+## 1997:        0.5        less
+## 1998:        0.5        less
+## 1999:        0.5        less
+## 2000:        0.5        less
+##                                                        method
+##    1:    1-sample proportions test with continuity correction
+##    2:    1-sample proportions test with continuity correction
+##    3:    1-sample proportions test with continuity correction
+##    4:    1-sample proportions test with continuity correction
+##    5: 1-sample proportions test without continuity correction
+##   ---                                                        
+## 1996:    1-sample proportions test with continuity correction
+## 1997:    1-sample proportions test with continuity correction
+## 1998:    1-sample proportions test with continuity correction
+## 1999:    1-sample proportions test with continuity correction
+## 2000:    1-sample proportions test with continuity correction
+## 
+## $sim.analysis.prop
+## $sim.analysis.prop$estimate.summary
+##          q.4      q.50      q.96    mean  st.error
+## 1: 0.2666667 0.4333333 0.5666667 0.42205 0.0885905
+## 
+## $sim.analysis.prop$stat.summary
+##    q.4      q.50     q.96     mean st.error
+## 1:   0 0.5666667 5.633333 1.317267 1.846495
+## 
+## $sim.analysis.prop$p.value.summary
+##   reject.proportion non.reject.proportion
+## 1            0.2135                0.7865
+## 
+## $sim.analysis.prop$ci.limit.summary
+##          q.4     q.50      q.96      mean   st.error
+## 1: 0.4094787 0.576745 0.7008002 0.5624227 0.08459248
+</code></pre>
+<p>This demonstrates the selected quantiles, mean, and standard error for the estimated success probability of the one-sample proportions test based upon the \(B\) experiments conducted in the simulation study.</p>
+<pre><code class="language-r">print(study.prop$sim.analysis.prop$estimate.summary)
+</code></pre>
+<pre><code>##          q.4      q.50      q.96    mean  st.error
+## 1: 0.2666667 0.4333333 0.5666667 0.42205 0.0885905
+</code></pre>
+<h5 id="test-statistics_3">Test Statistics</h5>
+<p>This demonstrates the selected quantiles, mean, and standard error for the test statistics of the one-sample proportions test based upon the \(B\) experiments conducted in the simulation study.</p>
+<pre><code class="language-r">print(study.prop$sim.analysis.prop$stat.summary)
+</code></pre>
+<pre><code>##    q.4      q.50     q.96     mean st.error
+## 1:   0 0.5666667 5.633333 1.317267 1.846495
+</code></pre>
+<h4 id="two-sample-proportions-test_1" class="tabset">Two Sample Proportions Test</h4>
+<h5 id="estimates_4">Estimates</h5>
+<p>This demonstrates the selected quantiles, mean, and standard error for the estimated difference in proportions of the two-sample proportions test based upon the \(B\) experiments conducted in the simulation study.</p>
+<pre><code class="language-r">print(study.prop2$sim.analysis.prop2$estimate.summary)
+</code></pre>
+<pre><code>##     q.2.5  q.50    q.97.5        mean  st.error
+## 1: -0.275 -0.05 0.1916667 -0.04718333 0.1198669
+</code></pre>
+<h5 id="test-statistics_4">Test Statistics</h5>
+<p>This demonstrates the selected quantiles, mean, and standard error for the test statistics of the two-sample proportions test based upon the \(B\) experiments conducted in the simulation study.</p>
+<pre><code class="language-r">print(study.prop2$sim.analysis.prop2$stat.summary)
+</code></pre>
+<pre><code>##    q.2.5      q.50   q.97.5     mean st.error
+## 1:     0 0.2507323 4.444274 0.793184 1.308529
+</code></pre>
+<h4 id="chi-2-squared-test-of-goodness-of-fit_1" class="tabset">\(\chi^2\) Squared Test of Goodness of Fit</h4>
+<h5 id="test-statistics_5">Test Statistics</h5>
+<p>This demonstrates the selected quantiles, mean, and standard error for the test statistics of the \(\chi^2\) test of goodness of fit based upon the \(B\) experiments conducted in the simulation study.</p>
+<pre><code class="language-r">print(study.chisq.gf$sim.analysis$stat.summary)
+</code></pre>
+<pre><code>##        q.25     q.75     mean st.error
+## 1: 2.386667 9.053333 6.226667 4.513542
+</code></pre>
+<h4 id="chi-2-squared-test-of-independence_1" class="tabset">\(\chi^2\) Squared Test of Independence</h4>
+<h5 id="test-statistics_6">Test Statistics</h5>
+<p>This demonstrates the selected quantiles, mean, and standard error for the test statistics of the \(\chi^2\) test of independence based upon the \(B\) experiments conducted in the simulation study.</p>
+<pre><code class="language-r">print(study.chisq.ind$sim.analysis$stat.summary)
+</code></pre>
+<pre><code>##       q.2.5   q.97.5     mean st.error
+## 1: 3.547409 26.60943 12.59337 6.036573
+</code></pre>
+<h4 id="linear-regression_2" class="tabset">Linear Regression</h4>
+<h5 id="estimated-coefficients_1">Estimated Coefficients</h5>
+<p>This demonstrates the selected quantiles, mean, and standard errors of the estimated coefficients of the linear regression model based upon the \(B\) experiments conducted in the simulation study.</p>
+<pre><code class="language-r">print(study.lm$sim.analysis$lm.estimate.summary)
+</code></pre>
+<pre><code>##              Coefficient        q.25         q.75         mean   st.error
+## 1:           (Intercept) 153.8055564 163.28857287 158.59064763 7.00464638
+## 2:                   Age   0.3950494   0.56843278   0.48232587 0.13047951
+## 3:            FemaleTRUE -16.4975226 -13.48388116 -14.99592332 2.35117629
+## 4:     Health.Percentile  -0.1260884  -0.06945318  -0.09769115 0.04188296
+## 5:     Exercise.Sessions  -0.7333715   0.42029077  -0.14193699 0.86623729
+## 6: Healthy.LifestyleTRUE  -4.7566724  -1.10116880  -2.93533317 2.75277017
+</code></pre>
+<h4 id="logistic-regression_2" class="tabset">Logistic Regression</h4>
+<h5 id="estimated-coefficients_2">Estimated Coefficients</h5>
+<p>This demonstrates the selected quantiles, mean, and standard errors of the estimated coefficients of the logistic regression model based upon the \(B\) experiments conducted in the simulation study.</p>
+<pre><code class="language-r">print(study.logistic$sim.analysis$logistic.estimate.summary)
+</code></pre>
+<pre><code>##          Coefficient        q.2.5          q.10        q.50        q.90
+## 1:       (Intercept)  1.022134461  1.9366636009  3.68466173  5.73934700
+## 2:               Age -0.174310418 -0.1493509481 -0.10465432 -0.06911418
+## 3:        FemaleTRUE -1.005002023 -0.5980217453  0.06354152  0.68079738
+## 4: Health.Percentile -0.006602118 -0.0006587377  0.01011092  0.02208901
+## 5: Exercise.Sessions  0.166758003  0.2916224153  0.53118976  0.81325366
+##         q.97.5        mean    st.error
+## 1:  7.20331742  3.77560592 1.534385977
+## 2: -0.05310227 -0.10729112 0.031556005
+## 3:  1.07653035  0.04598816 0.507826776
+## 4:  0.02801667  0.01039520 0.008932604
+## 5:  0.99250538  0.54517771 0.208341093
+</code></pre>
+<h3 id="type-i-error-rates" class="tabset">Type I Error Rates</h3>
+<p>The rate of false positive conclusions can be empirically investigated in a simulation study of repeated experiments.  This is performed when the data are generated under a scenario of no effect.</p>
+<h4 id="one-sample-t-test_2" class="tabset">One-Sample \(t\) Test</h4>
+<p>Here we show the rate of Type I errors (rejected null hypotheses) and true negatives (non-rejected null hypotheses) for a one-sample \(t\) test.</p>
+<pre><code class="language-r">study.noeffect.t &lt;- simstudy.t(n = 15, mean = 0, sd = 2, num.experiments = 2000,
+    seed = 71)
+
+print(study.noeffect.t$sim.analysis.t$p.value.summary)
+</code></pre>
+<pre><code>##   reject.proportion non.reject.proportion
+## 1             0.046                 0.954
+</code></pre>
+<h4 id="two-sample-t-test_2" class="tabset">Two-Sample \(t\) Test</h4>
+<p>Here we show the rate of Type I errors (rejected null hypotheses) and true negatives (non-rejected null hypotheses) for a two-sample \(t\) test.</p>
+<pre><code class="language-r">study.noeffect.t2 &lt;- simstudy.t2(nx = 20, ny = 25, meanx = 0, meany = 0, sdx = 1,
+    sdy = 1, num.experiments = 2000, alternative = &quot;greater&quot;, seed = 129)
+
+print(study.noeffect.t2$sim.analysis.t2$p.value.summary)
+</code></pre>
+<pre><code>##   reject.proportion non.reject.proportion
+## 1             0.045                 0.955
+</code></pre>
+<h4 id="one-sample-proportions-test_2" class="tabset">One Sample Proportions Test</h4>
+<p>Here we show the rate of Type I errors (rejected null hypotheses) and true negatives (non-rejected null hypotheses) for a one-sample proportions test.</p>
+<pre><code class="language-r">study.noeffect.prop &lt;- simstudy.prop(n = 40, p.actual = 0.25, p.hypothesized = 0.25,
+    num.experiments = 2000, alternative = &quot;less&quot;, conf.level = 0.95, seed = 98)
+
+print(study.noeffect.prop$sim.analysis.prop$p.value.summary)
+</code></pre>
+<pre><code>##   reject.proportion non.reject.proportion
+## 1            0.0165                0.9835
+</code></pre>
+<h4 id="two-sample-proportions-test_2" class="tabset">Two Sample Proportions Test</h4>
+<p>Here we show the rate of Type I errors (rejected null hypotheses) and true negatives (non-rejected null hypotheses) for a two-sample proportions test.</p>
+<pre><code class="language-r">study.noeffect.prop2 &lt;- simstudy.prop2(nx = 40, ny = 40, px = 0.4, py = 0.4, num.experiments = 2000,
+    alternative = &quot;two.sided&quot;, conf.level = 0.95, seed = 71)
+
+print(study.noeffect.prop2$sim.analysis.prop2$p.value.summary)
+</code></pre>
+<pre><code>##   reject.proportion non.reject.proportion
+## 1             0.028                 0.972
+</code></pre>
+<h4 id="chi-2-squared-test-of-goodness-of-fit_2" class="tabset">\(\chi^2\) Squared Test of Goodness of Fit</h4>
+<p>Here we show the rate of Type I errors (rejected null hypotheses) and true negatives (non-rejected null hypotheses) for a \(\chi^2\) test of goodness of fit in which the data are generated from the hypothesized distribution.</p>
+<pre><code class="language-r">study.noeffect.chisq.gf &lt;- simstudy.chisq.test.gf(n = 100, values = LETTERS[1:5],
+    actual.probs = rep.int(x = 0.2, times = 5), hypothesized.probs = rep.int(x = 0.2,
+        times = 5), num.experiments = 2000, conf.level = 0.95, seed = 3)
+
+print(study.noeffect.chisq.gf$sim.analysis$p.value.summary)
+</code></pre>
+<pre><code>##    reject.proportion non.reject.proportion
+## 1:            0.0645                0.9355
+</code></pre>
+<h4 id="chi-2-squared-test-of-independence_2" class="tabset">\(\chi^2\) Squared Test of Independence</h4>
+<p>Here we show the rate of Type I errors (rejected null hypotheses) and true negatives (non-rejected null hypotheses) for a \(\chi^2\) test of independence in which the data are generated from the hypothesized distribution.</p>
+<pre><code class="language-r">study.noeffect.chisq.ind &lt;- simstudy.chisq.test.ind(n = c(50, 50), values = LETTERS[1:5],
+    probs = matrix(data = 0.2, nrow = 2, ncol = 5), num.experiments = 2000, conf.level = 0.95,
+    seed = 8)
+
+print(study.noeffect.chisq.ind$sim.analysis$p.value.summary)
+</code></pre>
+<pre><code>##    reject.proportion non.reject.proportion
+## 1:             0.052                 0.948
+</code></pre>
+<h4 id="linear-regression_3" class="tabset">Linear Regression</h4>
+<h5 id="estimated-coefficients_3">Estimated Coefficients</h5>
+<p>Here we show the rate of Type I errors (rejected null hypotheses) and true negatives (non-rejected null hypotheses) for a linear regression in which the Health.Score does not depend on the subject’s Weight.</p>
+<pre><code class="language-r">study.noeffect.lm &lt;- simstudy.lm(the.steps = c(&quot;Age ~ N(50,10)&quot;, &quot;Weight ~ N(150, 10)&quot;,
+    &quot;Health.Score ~ lm(47 + 0.1 * Age + N(0, 5))&quot;), n = 100, num.experiments = 2000,
+    the.formula = Health.Score ~ Age + Weight, conf.level = 0.9, seed = 4)
+
+print(study.noeffect.lm$sim.analysis$lm.p.summary)
+</code></pre>
+<pre><code>##    Coefficient reject.proportion non.reject.proportion
+## 1: (Intercept)            1.0000                0.0000
+## 2:         Age            0.6245                0.3755
+## 3:      Weight            0.0975                0.9025
+</code></pre>
+<h4 id="logistic-regression_3" class="tabset">Logistic Regression</h4>
+<p>Here we show the rate of Type I errors (rejected null hypotheses) and true negatives (non-rejected null hypotheses) for a logistic regression in which the Hospital status does not depend on the subject’s Weight.</p>
+<pre><code class="language-r">study.noeffect.logistic &lt;- simstudy.logistic(the.steps = c(&quot;Age ~ N(50,10)&quot;, &quot;Weight ~ N(150, 10)&quot;,
+    &quot;Hospital ~ logistic(-2 + 0.05 * Age)&quot;), n = 100, num.experiments = 2000, the.formula = Hospital ~
+    Age + Weight, conf.level = 0.4, seed = 31)
+
+print(study.noeffect.logistic$sim.analysis$logistic.p.summary)
+</code></pre>
+<pre><code>##    Coefficient reject.proportion non.reject.proportion
+## 1: (Intercept)            0.6605                0.3395
+## 2:         Age            0.9705                0.0295
+## 3:      Weight            0.6110                0.3890
+</code></pre>
+<h3 id="statistical-power" class="tabset">Statistical Power</h3>
+<p>When an effect exists, the rate of true positive conclusions can be empirically investigated in a simulation study of repeated experiments.</p>
+<h4 id="one-sample-t-test_3" class="tabset">One-Sample \(t\) Test</h4>
+<p>Here we show the rate of Type II errors (non-rejected null hypotheses) and true positives for a one-sample \(t\) test.</p>
+<pre><code class="language-r">study.effect.t &lt;- simstudy.t(n = 50, mean = 0.3, sd = 1, num.experiments = 2000,
+    alternative = &quot;greater&quot;, seed = 44)
+
+print(study.effect.t$sim.analysis.t$p.value.summary)
+</code></pre>
+<pre><code>##   reject.proportion non.reject.proportion
+## 1             0.679                 0.321
+</code></pre>
+<h4 id="two-sample-t-test_3" class="tabset">Two-Sample \(t\) Test</h4>
+<p>Here we show the rates of Type II errors (non-rejected null hypotheses) and true positives for a two-sample \(t\) test.</p>
+<pre><code class="language-r">study.effect.t2 &lt;- simstudy.t2(nx = 100, ny = 100, meanx = 52, meany = 50, sdx = 5,
+    sdy = 5, num.experiments = 2000, seed = 93, alternative = &quot;two.sided&quot;)
+
+print(study.effect.t2$sim.analysis.t2$p.value.summary)
+</code></pre>
+<pre><code>##   reject.proportion non.reject.proportion
+## 1             0.803                 0.197
+</code></pre>
+<h4 id="one-sample-proportions-test_3" class="tabset">One Sample Proportions Test</h4>
+<p>Here we show the rates of Type II errors (non-rejected null hypotheses) and true positives for a one-sample proportions test.</p>
+<pre><code class="language-r">study.effect.prop &lt;- simstudy.prop(n = 300, p.actual = 0.8, p.hypothesized = 0.75,
+    num.experiments = 2000, alternative = &quot;greater&quot;, conf.level = 0.95, seed = 81)
+
+print(study.effect.prop$sim.analysis.prop$p.value.summary)
+</code></pre>
+<pre><code>##   reject.proportion non.reject.proportion
+## 1             0.644                 0.356
+</code></pre>
+<h4 id="two-sample-proportions-test_3" class="tabset">Two Sample Proportions Test</h4>
+<p>Here we show the rates of Type II errors (non-rejected null hypotheses) and true positives for a two-sample proportions test.</p>
+<pre><code class="language-r">study.effect.prop2 &lt;- simstudy.prop2(nx = 500, ny = 500, px = 0.5, py = 0.45, num.experiments = 2000,
+    alternative = &quot;greater&quot;, conf.level = 0.95, seed = 117)
+
+print(study.effect.prop2$sim.analysis.prop2$p.value.summary)
+</code></pre>
+<pre><code>##   reject.proportion non.reject.proportion
+## 1            0.4685                0.5315
+</code></pre>
+<h4 id="chi-2-squared-test-of-goodness-of-fit_3" class="tabset">\(\chi^2\) Squared Test of Goodness of Fit</h4>
+<p>Here we show the rate of Type II errors (non-rejected null hypotheses) and true positives for a \(\chi^2\) test of goodness of fit.</p>
+<pre><code class="language-r">study.effect.chisq.gf &lt;- simstudy.chisq.test.gf(n = 100, values = LETTERS[1:5], actual.probs = c(0.3,
+    0.35, 0.15, 0.1, 0.1), hypothesized.probs = rep.int(x = 0.2, times = 5), num.experiments = 2000,
+    conf.level = 0.95, seed = 83)
+
+print(study.effect.chisq.gf$sim.analysis$p.value.summary)
+</code></pre>
+<pre><code>##    reject.proportion non.reject.proportion
+## 1:            0.9965                0.0035
+</code></pre>
+<h4 id="chi-2-squared-test-of-independence_3" class="tabset">\(\chi^2\) Squared Test of Independence</h4>
+<p>Here we show the rates of Type II errors (non-rejected null hypotheses) and true positives for a \(\chi^2\) test of independence.</p>
+<pre><code class="language-r">study.effect.chisq.ind &lt;- simstudy.chisq.test.ind(n = c(300, 300), values = LETTERS[1:5],
+    probs = matrix(data = c(0.25, 0.25, 0.2, 0.2, 0.1, rep.int(x = 0.2, times = 5)),
+        nrow = 2, ncol = 5, byrow = T), num.experiments = 2000, conf.level = 0.95,
+    seed = 8)
+
+print(study.effect.chisq.ind$sim.analysis$p.value.summary)
+</code></pre>
+<pre><code>##    reject.proportion non.reject.proportion
+## 1:            0.8485                0.1515
+</code></pre>
+<h4 id="linear-regression_4" class="tabset">Linear Regression</h4>
+<h5 id="estimated-coefficients_4">Estimated Coefficients</h5>
+<p>Here we show the rates of Type II errors (non-rejected null hypotheses) and true positives for a linear regression in which the Health.Score depends on the subject’s Weight.</p>
+<pre><code class="language-r">study.effect.lm &lt;- simstudy.lm(the.steps = c(&quot;Age ~ N(50,10)&quot;, &quot;Weight ~ N(150, 10)&quot;,
+    &quot;Health.Score ~ lm(40 + 0.1 * Age + 0.05 * Weight + N(0, 5))&quot;), n = 100, num.experiments = 2000,
+    the.formula = Health.Score ~ Age + Weight, conf.level = 0.9, seed = 4)
+
+print(study.effect.lm$sim.analysis$lm.p.summary)
+</code></pre>
+<pre><code>##    Coefficient reject.proportion non.reject.proportion
+## 1: (Intercept)            1.0000                0.0000
+## 2:         Age            0.6245                0.3755
+## 3:      Weight            0.2630                0.7370
+</code></pre>
+<h4 id="logistic-regression_4" class="tabset">Logistic Regression</h4>
+<p>Here we show the rates of Type II errors (non-rejected null hypotheses) and true positives for a logistic regression in which the Hospital status depends on the subject’s Weight.</p>
+<pre><code class="language-r">glm.steps &lt;- c(&quot;Age ~ N(50,10)&quot;, &quot;Weight ~ N(170, 15)&quot;, &quot;Hospital ~ logistic(-2 + 0.1 * (Age-50) + 0.08 * (Weight-170))&quot;)
+
+study.effect.logistic &lt;- simstudy.logistic(the.steps = glm.steps, n = 100, num.experiments = 2000,
+    the.formula = Hospital ~ Age + Weight, conf.level = 0.95, seed = 31)
+
+print(study.effect.logistic$sim.analysis$logistic.p.summary)
+</code></pre>
+<pre><code>##    Coefficient reject.proportion non.reject.proportion
+## 1: (Intercept)            0.9990                0.0010
+## 2:         Age            0.8990                0.1010
+## 3:      Weight            0.9675                0.0325
+</code></pre>
+</div>
+<div class="include-after">
+</div>
+<script src="https://cdn.jsdelivr.net/npm/prismjs@1.29.0/components/prism-core.min.js" defer></script>
+<script src="https://cdn.jsdelivr.net/npm/prismjs@1.29.0/plugins/autoloader/prism-autoloader.min.js" defer></script>
+<script src="https://cdn.jsdelivr.net/combine/npm/katex/dist/katex.min.js,npm/katex/dist/contrib/auto-render.min.js,npm/@xiee/utils/js/render-katex.js" defer></script>
+</body>
+</html>
